@@ -1,6 +1,22 @@
 import { NextResponse } from "next/server";
 import { hasAdminSession } from "@/lib/auth";
-import { updateExercise, type ExercisePatch } from "@/lib/exercise-store";
+import { hasApiAccess } from "@/lib/api-auth";
+import { getExercise, updateExercise, type ExercisePatch } from "@/lib/exercise-store";
+
+export const dynamic = "force-dynamic";
+
+// Read-only single exercise for the app (Bearer token). Thumbnail is left out.
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!hasApiAccess(request)) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+  }
+  const { id } = await params;
+  const record = await getExercise(id);
+  if (!record) {
+    return NextResponse.json({ error: "Nicht gefunden." }, { status: 404 });
+  }
+  return NextResponse.json({ id: record.id, savedAt: record.savedAt, exercise: record.exercise });
+}
 
 const MAX_TEXT = 300;
 const MAX_LIST = 30;

@@ -1,9 +1,28 @@
 import { NextResponse } from "next/server";
 import { hasAdminSession } from "@/lib/auth";
+import { hasApiAccess } from "@/lib/api-auth";
 import { EXERCISE_SCHEMA_ID, type Exercise } from "@/lib/exercise";
-import { saveExercise } from "@/lib/exercise-store";
+import { listExercises, saveExercise } from "@/lib/exercise-store";
+
+export const dynamic = "force-dynamic";
 
 const MAX_THUMBNAIL_CHARS = 400_000;
+
+// Read-only list for the app (Bearer token). Thumbnails are left out to keep it small.
+export async function GET(request: Request) {
+  if (!hasApiAccess(request)) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+  }
+  try {
+    const items = await listExercises();
+    return NextResponse.json({
+      exercises: items.map((item) => ({ id: item.id, savedAt: item.savedAt, exercise: item.exercise })),
+    });
+  } catch (error) {
+    console.error("List failed", error instanceof Error ? error.message : error);
+    return NextResponse.json({ error: "Laden fehlgeschlagen." }, { status: 502 });
+  }
+}
 
 // Saves an analysed exercise with its thumbnail (admin only).
 export async function POST(request: Request) {
