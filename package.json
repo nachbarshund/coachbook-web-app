@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
     "@fontsource-variable/manrope": "^5.3.0",
     "@vercel/blob": "^2.8.2",
     "next": "16.4.2",
