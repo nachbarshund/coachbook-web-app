@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { connection } from "next/server";
 import { listExercises, type ExerciseListItem } from "@/lib/exercise-store";
 
@@ -26,9 +25,9 @@ export default async function ExercisesPage() {
           <div className="eyebrow">Katalog</div>
           <div className="admin__title">Übungen</div>
         </div>
-        <Link href="/admin/upload" className="pill pill--solid">
+        <a href="/admin/upload" className="pill pill--solid">
           Video hochladen
-        </Link>
+        </a>
       </header>
 
       {error ? (
@@ -43,7 +42,7 @@ export default async function ExercisesPage() {
         <ul className="exercise-list">
           {items.map((item) => (
             <li key={item.id}>
-              <Link href={`/admin/exercises/${item.id}`} className="card exercise-row">
+              <a href={`/admin/exercises/${item.id}`} className="card exercise-row">
                 {item.thumbnail ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img className="exercise-row__thumb" src={item.thumbnail} alt="" />
@@ -62,7 +61,7 @@ export default async function ExercisesPage() {
                     <span className="chip">{item.stepCount} Schritte</span>
                   </div>
                 </div>
-              </Link>
+              </a>
             </li>
           ))}
         </ul>

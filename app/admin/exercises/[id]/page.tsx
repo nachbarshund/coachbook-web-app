@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getExercise } from "@/lib/exercise-store";
@@ -23,9 +22,9 @@ export default async function EditExercisePage({ params }: { params: Promise<{ i
           <div className="eyebrow">Übung bearbeiten</div>
           <div className="admin__title">{record.exercise.title}</div>
         </div>
-        <Link href="/admin" className="pill pill--ghost">
+        <a href="/admin" className="pill pill--ghost">
           Zurück
-        </Link>
+        </a>
       </header>
 
       <ExerciseEditor id={record.id} exercise={record.exercise} />

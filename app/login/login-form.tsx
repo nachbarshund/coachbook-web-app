@@ -1,12 +1,18 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { login, type LoginState } from "./actions";
 
 const initialState: LoginState = {};
 
 export function LoginForm() {
   const [state, action, pending] = useActionState(login, initialState);
+
+  // Full page load to the admin area after a successful login.
+  useEffect(() => {
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional full page load
+    if (state.ok) window.location.assign("/admin");
+  }, [state.ok]);
 
   return (
     <form action={action} className="card login-card" noValidate>

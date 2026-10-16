@@ -1,10 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { clearAdminSession, setAdminSession, verifyAdminPassword } from "@/lib/auth";
 
-export type LoginState = { error?: string };
+export type LoginState = { error?: string; ok?: boolean };
 
 export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const password = formData.get("password");
@@ -22,13 +21,10 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   }
 
   await setAdminSession();
-  // Drop cached client routes (e.g. a pre-login /admin redirect) so the next page is fresh.
-  revalidatePath("/", "layout");
-  redirect("/admin");
+  return { ok: true };
 }
 
 export async function logout(): Promise<void> {
   await clearAdminSession();
-  revalidatePath("/", "layout");
   redirect("/");
 }
