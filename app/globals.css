@@ -1056,3 +1056,42 @@ a {
   line-height: 1.55;
   font-size: 15px;
 }
+
+/* Saved exercises list */
+.exercise-list {
+  display: grid;
+  gap: 12px;
+}
+
+.exercise-card h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.exercise-card p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Editable exercise title */
+.title-field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.title-field input {
+  font: inherit;
+  font-size: 16px;
+  color: #111412;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 20, 18, 0.12);
+  background: #ffffff;
+}
+
+.title-field input:disabled {
+  opacity: 0.6;
+}

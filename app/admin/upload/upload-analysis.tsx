@@ -74,6 +74,8 @@ export function UploadAnalysis() {
   const [upstate, setUpstate] = useState<UploadState>({ phase: "idle" });
   const [analysis, setAnalysis] = useState<AnalysisState>({ phase: "idle" });
   const [resultTab, setResultTab] = useState<"scene" | "json">("scene");
+  const [title, setTitle] = useState("");
+  const [saveState, setSaveState] = useState<{ phase: "idle" | "saving" | "saved" | "error" }>({ phase: "idle" });
 
   useEffect(() => {
     return () => {
@@ -92,6 +94,7 @@ export function UploadAnalysis() {
     if (busy) return;
     setFile(next);
     setAnalysis({ phase: "idle" });
+    setSaveState({ phase: "idle" });
     setTab("video");
     await runUpload(next);
   }
@@ -138,10 +141,27 @@ export function UploadAnalysis() {
         throw new Error(data?.error ?? "Analyse fehlgeschlagen.");
       }
       setAnalysis({ phase: "done", exercise: data.exercise });
+      setTitle(data.exercise.title);
       setResultTab("scene");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Analyse fehlgeschlagen.";
       setAnalysis({ phase: "error", message });
+    }
+  }
+
+  async function saveResult(exercise: Exercise) {
+    setSaveState({ phase: "saving" });
+    try {
+      const response = await fetch("/api/exercises", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ exercise: { ...exercise, title: title.trim() || exercise.title } }),
+      });
+      const data = (await response.json().catch(() => null)) as { id?: string; error?: string } | null;
+      if (!response.ok || !data?.id) throw new Error(data?.error ?? "Speichern fehlgeschlagen.");
+      setSaveState({ phase: "saved" });
+    } catch {
+      setSaveState({ phase: "error" });
     }
   }
 
@@ -155,6 +175,7 @@ export function UploadAnalysis() {
     if (busy) return;
     setFile(null);
     setPreviewUrl(null);
+    setSaveState({ phase: "idle" });
     setUpstate({ phase: "idle" });
     setAnalysis({ phase: "idle" });
     setTab("video");
@@ -267,7 +288,17 @@ export function UploadAnalysis() {
               </div>
             ) : (
               <div className="card result-panel">
-                <div className="result-panel__tabs" role="tablist" aria-label="Ansicht">
+                <label className="title-field">
+                <span>Titel der Übung</span>
+                <input
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  disabled={analysis.phase !== "done"}
+                  placeholder="Wird aus der Analyse vorgeschlagen"
+                />
+              </label>
+
+              <div className="result-panel__tabs" role="tablist" aria-label="Ansicht">
                   <button
                     type="button"
                     role="tab"
@@ -313,8 +344,21 @@ export function UploadAnalysis() {
                       Erneut analysieren
                     </button>
                   ) : (
-                    <button type="button" className="pill pill--solid" disabled>
-                      Übernehmen
+                    <button
+                      type="button"
+                      className="pill pill--solid"
+                      disabled={analysis.phase !== "done" || saveState.phase === "saving" || saveState.phase === "saved"}
+                      onClick={() => {
+                        if (analysis.phase === "done") void saveResult(analysis.exercise);
+                      }}
+                    >
+                      {saveState.phase === "saved"
+                        ? "Gespeichert"
+                        : saveState.phase === "saving"
+                          ? "Speichert…"
+                          : saveState.phase === "error"
+                            ? "Erneut speichern"
+                            : "Übernehmen"}
                     </button>
                   )}
                 </div>

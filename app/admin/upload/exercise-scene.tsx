@@ -106,19 +106,16 @@ function ConeMarker({ cone }: { cone: Cone }) {
   return <ellipse cx={toX(cone)} cy={toY(cone)} rx={1.6} ry={0.75} fill="#d62b2b" stroke="#8a1212" strokeWidth={0.2} />;
 }
 
-function Player({ at, label, team }: { at: Point; label: string; team: string | null }) {
+function Player({ at, label }: { at: Point; label: string }) {
   return (
     <g transform={`translate(${toX(at)} ${toY(at)})`}>
-      <circle r={3.4} fill={team === "B" ? "url(#shirt-red)" : "url(#shirt-blue)"} stroke="#0f1f3a" strokeWidth={0.4} />
+      <circle r={3.4} fill="#111412" />
       <text
         y={1.2}
         fontSize={3.6}
         fontWeight={700}
         textAnchor="middle"
         fill="#ffffff"
-        stroke="#0f1f3a"
-        strokeWidth={0.6}
-        paintOrder="stroke"
       >
         {label}
       </text>
@@ -180,14 +177,6 @@ export function ExerciseScene({ exercise }: { exercise: Exercise }) {
     <div className="exercise-scene">
       <svg viewBox={`-4 -4 ${W + 8} ${H + 8}`} role="img" aria-label={`Feldskizze: ${exercise.title}`}>
         <defs>
-          <pattern id="shirt-blue" width="1.6" height="1.6" patternUnits="userSpaceOnUse">
-            <rect width="0.8" height="1.6" fill="#1f4f9a" />
-            <rect x="0.8" width="0.8" height="1.6" fill="#f2f4f7" />
-          </pattern>
-          <pattern id="shirt-red" width="1.6" height="1.6" patternUnits="userSpaceOnUse">
-            <rect width="0.8" height="1.6" fill="#c8102e" />
-            <rect x="0.8" width="0.8" height="1.6" fill="#f2f4f7" />
-          </pattern>
           <pattern id="net" width="1.4" height="1.4" patternUnits="userSpaceOnUse">
             <path d="M0 0 L1.4 1.4 M1.4 0 L0 1.4" stroke="#ffffff" strokeWidth={0.18} opacity={0.8} />
           </pattern>
@@ -237,8 +226,8 @@ export function ExerciseScene({ exercise }: { exercise: Exercise }) {
           <ConeMarker key={c.id} cone={c} />
         ))}
 
-        {exercise.people.map((p) => (
-          <Player key={p.id} at={pose?.people.get(p.id) ?? p} label={p.id.replace(/^p(?=\d)/, "")} team={p.team} />
+        {exercise.people.map((p, index) => (
+          <Player key={p.id} at={pose?.people.get(p.id) ?? p} label={String(index + 1)} />
         ))}
 
         {shownBall ? <Ball at={shownBall} /> : null}

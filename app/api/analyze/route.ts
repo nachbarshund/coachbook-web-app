@@ -15,7 +15,7 @@ const SYSTEM_PROMPT = `You analyze frames from a short youth football (soccer) t
 Return only a JSON object, no prose, no code fences. Use this shape:
 {
   "schema": "${EXERCISE_SCHEMA_ID}",
-  "title": string (German, short),
+  "title": string (German, max 4 words, e.g. "Passspiel Mitte–links"),
   "category": string | null (e.g. "Passspiel", "Torschuss", "Koordination"),
   "ageGroup": string | null (e.g. "F-Jugend"),
   "durationMinutes": number | null,
@@ -26,7 +26,7 @@ Return only a JSON object, no prose, no code fences. Use this shape:
   "people": [{ "id": string, "team": string | null, "x": number, "y": number }],
   "movements": [{ "from": string, "to": { "x": number, "y": number }, "kind": "pass" | "run" | "dribble" }],
   "keyframes": [{ "t": number, "people": [{ "id": string, "x": number, "y": number }], "ball": { "x": number, "y": number } | null }],
-  "steps": [string] (German, in order),
+  "steps": [string] (German, in order, each max 8 words, imperative, e.g. "Pass von Mitte nach links"),
   "coachingPoints": [string] (German),
   "confidence": "low" | "medium" | "high",
   "notes": string | null
@@ -37,7 +37,7 @@ Rules:
 - Cones: "cone" is a flat red disc on the grass. "pole" is a tall red stick with a base. Keep them apart; do not call a pole a cone.
 - Goals: a goal is a frame with a net. Give its centre line position, its width as a fraction of the field width, and whether it lies horizontally (across the field) or vertically.
 - Equipment: list every kind of training material visible in the frames (cones, poles, goals, balls, bibs or vests) with its count.
-- Steps ("steps") describe the drill in order, from the start position to the end, in German, as short sentences (for example: "Spieler 4 passt den Ball von der Mitte nach links zu Spieler 6.").
+- Steps ("steps") are short, watch-friendly instructions in German, one drill action per step, in order.
 - Use the visible jersey number as the player "id" when it is readable (e.g. "3"). Otherwise use "p1", "p2", …
 - "people" lists every player once, with their position in the first frame.
 - "keyframes" has exactly one entry per input frame, in the same order, using the t value given for that frame. Each entry lists the position of every visible player (same ids as in "people") and the ball.
