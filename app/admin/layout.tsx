@@ -22,6 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <form action={logout}>
             <button type="submit">Abmelden</button>
           </form>
+          <span className="site-footer__version">v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
         </div>
       </aside>
       <main className="admin__main">{children}</main>
