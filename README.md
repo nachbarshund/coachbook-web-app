@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Coachbook Web
 
-## Getting Started
+Öffentliche Seite und Admin-Bereich für Coachbook. Next.js 16, App Router, TypeScript.
 
-First, run the development server:
+## Lokal starten
 
 ```bash
+npm install
+cp .env.example .env.local   # Werte unten eintragen
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Umgebungsvariablen
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Zweck |
+|---|---|
+| `ADMIN_PASSWORD_HASH` | scrypt-Hash des Admin-Passworts. Erzeugen mit `node scripts/hash-password.mjs "passwort"` |
+| `SESSION_SECRET` | Langer Zufallsstring zum Signieren des Session-Cookies, z. B. `openssl rand -hex 32` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Beide Werte gehören nicht ins Repo. Lokal in `.env.local`, auf Vercel als Environment Variables.
 
-## Learn More
+## Struktur
 
-To learn more about Next.js, take a look at the following resources:
+- `app/` Startseite, Login, Admin (`/admin`, `/admin/upload`), Rechtsseiten
+- `proxy.ts` leitet `/admin/*` ohne gültiges Session-Cookie auf `/login` um
+- `app/admin/layout.tsx` prüft die Session zusätzlich serverseitig
+- `lib/auth.ts` Passwortprüfung und signiertes Session-Cookie
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Status
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Die Analyse-Pipeline ist noch nicht angebunden. Der Upload-Screen zeigt nur die Vorschau.
+Impressum, Datenschutz und Kontakt sind Platzhalter.
