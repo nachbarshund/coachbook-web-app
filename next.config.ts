@@ -26,8 +26,6 @@ const patch = commitCount() ?? Number(fallbackPatch ?? 0);
 const appVersion = `${major}.${minor}.${patch}`;
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
-  partialPrefetching: true,
   env: {
     NEXT_PUBLIC_APP_VERSION: appVersion,
     // "production", "preview" or "development" (local). Drives the environment ribbon.

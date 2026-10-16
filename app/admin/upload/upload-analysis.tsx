@@ -75,6 +75,7 @@ export function UploadAnalysis() {
   const [analysis, setAnalysis] = useState<AnalysisState>({ phase: "idle" });
   const [resultTab, setResultTab] = useState<"scene" | "json">("scene");
   const [title, setTitle] = useState("");
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<{ phase: "idle" | "saving" | "saved" | "error" }>({ phase: "idle" });
 
   useEffect(() => {
@@ -128,6 +129,7 @@ export function UploadAnalysis() {
       const frames = await extractFrames(target, {}, (framesDone, total) => {
         setAnalysis({ phase: "frames", framesDone, total });
       });
+      setThumbnail(frames[Math.floor(frames.length / 2)]?.data ?? null);
       setAnalysis({ phase: "ai", startedAt: Date.now(), expectedMs: 20_000 + frames.length * 1_000 });
       const response = await fetch("/api/analyze", {
         method: "POST",
@@ -155,7 +157,7 @@ export function UploadAnalysis() {
       const response = await fetch("/api/exercises", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ exercise: { ...exercise, title: title.trim() || exercise.title } }),
+        body: JSON.stringify({ exercise: { ...exercise, title: title.trim() || exercise.title }, thumbnail }),
       });
       const data = (await response.json().catch(() => null)) as { id?: string; error?: string } | null;
       if (!response.ok || !data?.id) throw new Error(data?.error ?? "Speichern fehlgeschlagen.");

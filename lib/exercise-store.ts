@@ -4,7 +4,8 @@ import type { Exercise } from "@/lib/exercise";
 // Saved exercises live as private JSON blobs under this prefix.
 const PREFIX = "exercises/";
 
-export type SavedExercise = { id: string; savedAt: string; exercise: Exercise };
+// Thumbnail is a base64 JPEG (no data-URL prefix).
+export type SavedExercise = { id: string; savedAt: string; exercise: Exercise; thumbnail: string | null };
 
 export type ExerciseListItem = {
   id: string;
@@ -12,6 +13,10 @@ export type ExerciseListItem = {
   savedAt: string;
   playerCount: number | null;
   stepCount: number;
+  category: string | null;
+  ageGroup: string | null;
+  preview: string[];
+  thumbnail: string | null;
 };
 
 function slugify(value: string): string {
@@ -20,17 +25,17 @@ function slugify(value: string): string {
       .toLowerCase()
       .replace(/ß/g, "ss")
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[̀-ͯ]/g, "")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "")
       .slice(0, 60) || "uebung"
   );
 }
 
-export async function saveExercise(exercise: Exercise): Promise<SavedExercise> {
+export async function saveExercise(exercise: Exercise, thumbnail: string | null): Promise<SavedExercise> {
   const savedAt = new Date().toISOString();
   const id = `${Date.now()}-${slugify(exercise.title)}`;
-  const record: SavedExercise = { id, savedAt, exercise };
+  const record: SavedExercise = { id, savedAt, exercise, thumbnail };
   await put(`${PREFIX}${id}.json`, JSON.stringify(record), {
     access: "private",
     contentType: "application/json",
@@ -59,6 +64,10 @@ export async function listExercises(): Promise<ExerciseListItem[]> {
               savedAt: record.savedAt,
               playerCount: record.exercise.playerCount,
               stepCount: record.exercise.steps.length,
+              category: record.exercise.category,
+              ageGroup: record.exercise.ageGroup,
+              preview: record.exercise.steps.slice(0, 2),
+              thumbnail: record.thumbnail ? `data:image/jpeg;base64,${record.thumbnail}` : null,
             },
           ]
         : [],

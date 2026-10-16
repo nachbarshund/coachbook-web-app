@@ -9,9 +9,6 @@ export const metadata: Metadata = {
   title: "Login",
 };
 
-// Reads the session cookie to redirect signed-in admins, so it cannot be prerendered.
-export const instant = false;
-
 export default async function LoginPage() {
   if (await hasAdminSession()) {
     redirect("/admin");
