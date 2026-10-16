@@ -796,7 +796,7 @@ a {
   padding: 0;
 }
 
-.stepper li {
+.stepper button {
   flex: 1;
   display: flex;
   align-items: center;
@@ -820,17 +820,17 @@ a {
 }
 
 .stepper .is-done .stepper__num,
-.stepper li.is-done .stepper__num {
+.stepper button.is-done .stepper__num {
   background: #5be08f;
   color: #111412;
 }
 
-.stepper li.is-active {
+.stepper button.is-active {
   background: #14804a;
   color: #ffffff;
 }
 
-.stepper li.is-active .stepper__num {
+.stepper button.is-active .stepper__num {
   background: rgba(255, 255, 255, 0.25);
   color: #ffffff;
 }
@@ -896,7 +896,7 @@ a {
   padding: 0;
 }
 
-.stepper li {
+.stepper button {
   flex: 1;
   display: flex;
   align-items: center;
@@ -919,17 +919,17 @@ a {
   font-size: 12px;
 }
 
-.stepper li.is-done .stepper__num {
+.stepper button.is-done .stepper__num {
   background: #5be08f;
   color: #111412;
 }
 
-.stepper li.is-active {
+.stepper button.is-active {
   background: #14804a;
   color: #ffffff;
 }
 
-.stepper li.is-active .stepper__num {
+.stepper button.is-active .stepper__num {
   background: rgba(255, 255, 255, 0.25);
   color: #ffffff;
 }
@@ -990,4 +990,15 @@ a {
   .spinner {
     animation-duration: 2.4s;
   }
+}
+
+.stepper button {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.stepper button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
