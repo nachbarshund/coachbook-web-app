@@ -1000,3 +1000,35 @@ a {
   flex: 1 1 100%;
   max-width: 560px;
 }
+
+/* Analysis progress: centred, stacked */
+.analysis-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 220px;
+  padding: 24px 8px;
+  text-align: center;
+}
+
+.analysis-progress .spinner {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+}
+
+.analysis-progress__title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.analysis-progress .progress {
+  width: 100%;
+  max-width: 260px;
+}
+
+.analysis-progress .progress-meta {
+  margin: 0;
+}

@@ -38,16 +38,14 @@ function AnalysisProgress({ state }: { state: Extract<AnalysisState, { phase: "f
   if (state.phase === "frames") {
     const percent = (state.framesDone / FRAME_COUNT) * 20;
     return (
-      <>
-        <div className="progress-row">
-          <span className="spinner" aria-hidden="true" />
-          <span>Frames werden aus dem Video gezogen ({state.framesDone}/{FRAME_COUNT})</span>
-        </div>
+      <div className="analysis-progress">
+        <span className="spinner" aria-hidden="true" />
+        <p className="analysis-progress__title">Frames werden aus dem Video gezogen ({state.framesDone}/{FRAME_COUNT})</p>
         <div className="progress" aria-hidden="true">
           <span style={{ width: `${percent}%` }} />
         </div>
         <p className="progress-meta">Dauert nur wenige Sekunden.</p>
-      </>
+      </div>
     );
   }
 
@@ -57,11 +55,9 @@ function AnalysisProgress({ state }: { state: Extract<AnalysisState, { phase: "f
   const overdue = elapsed > AI_EXPECTED_MS;
 
   return (
-    <>
-      <div className="progress-row">
-        <span className="spinner" aria-hidden="true" />
-        <span>Claude analysiert die Übung…</span>
-      </div>
+    <div className="analysis-progress">
+      <span className="spinner" aria-hidden="true" />
+      <p className="analysis-progress__title">Claude analysiert die Übung…</p>
       <div className="progress" aria-hidden="true">
         <span style={{ width: `${percent}%` }} />
       </div>
@@ -70,7 +66,7 @@ function AnalysisProgress({ state }: { state: Extract<AnalysisState, { phase: "f
           ? "Dauert etwas länger als üblich, bitte kurz warten."
           : `Geschätzte Restdauer: ca. ${remaining} Sekunden`}
       </p>
-    </>
+    </div>
   );
 }
 
