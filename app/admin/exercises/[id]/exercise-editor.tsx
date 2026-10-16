@@ -21,6 +21,9 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
 
   const [gifStatus, setGifStatus] = useState<"idle" | "working" | "done" | "error">("idle");
   const [gifError, setGifError] = useState("");
+  // Bumped after each render so the preview reloads; hidden while the server has no GIF (404).
+  const [gifVersion, setGifVersion] = useState(0);
+  const [gifVisible, setGifVisible] = useState(true);
 
   // Renders the sketch as a GIF in the browser and stores it for the app import.
   async function makeGif() {
@@ -34,6 +37,8 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
         body: blob,
       });
       if (!response.ok) throw new Error("Hochladen fehlgeschlagen.");
+      setGifVersion((v) => v + 1);
+      setGifVisible(true);
       setGifStatus("done");
     } catch (error) {
       setGifError(error instanceof Error ? error.message : "GIF fehlgeschlagen.");
@@ -65,6 +70,17 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
     <div className="editor">
       <section className="card editor__preview">
         <ExerciseScene exercise={exercise} showDetails={false} />
+        {gifVisible ? (
+          <figure className="editor__gif">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/exercises/${id}/media?v=${gifVersion}`}
+              alt={`GIF: ${exercise.title}`}
+              onError={() => setGifVisible(false)}
+            />
+            <figcaption>GIF (so kommt es in die App)</figcaption>
+          </figure>
+        ) : null}
       </section>
 
       <section className="card editor__form">

@@ -1219,3 +1219,23 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+.editor__gif {
+  margin: 20px 0 0;
+  text-align: center;
+}
+
+.editor__gif img {
+  display: block;
+  margin: 0 auto;
+  max-width: 240px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.editor__gif figcaption {
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  opacity: 0.65;
+}

@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
+import { hasAdminSession } from "@/lib/auth";
 import { hasApiAccess } from "@/lib/api-auth";
 import { getExerciseGif } from "@/lib/exercise-store";
 
 export const dynamic = "force-dynamic";
 
-// Sketch GIF for the app (Bearer token). 404 if none was rendered yet.
+// Sketch GIF for the app (Bearer token) and the admin preview (session). 404 if none was rendered yet.
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!hasApiAccess(request)) {
+  if (!hasApiAccess(request) && !(await hasAdminSession())) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
   const { id } = await params;
