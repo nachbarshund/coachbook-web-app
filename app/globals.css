@@ -130,6 +130,11 @@ a {
   color: var(--muted);
 }
 
+.site-footer__version {
+  font-size: 11px;
+  opacity: 0.5;
+}
+
 .site-footer nav {
   display: flex;
   gap: 28px;

@@ -21,7 +21,9 @@ export function Brand({ href = "/" }: { href?: string }) {
 export function SiteFooter() {
   return (
     <footer className="site-footer">
-      <span>© 2026 Coachbook · v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
+      <span>
+        © 2026 Coachbook <span className="site-footer__version">· v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
+      </span>
       <nav aria-label="Rechtliches">
         <Link href="/impressum">Impressum</Link>
         <Link href="/datenschutz">Datenschutz</Link>
