@@ -147,7 +147,7 @@ function Ball({ at }: { at: Point }) {
   );
 }
 
-export function ExerciseScene({ exercise }: { exercise: Exercise }) {
+export function ExerciseScene({ exercise, showDetails = true }: { exercise: Exercise; showDetails?: boolean }) {
   const frames = exercise.keyframes;
   const animated = frames.length >= 2;
   const duration = animated ? frames[frames.length - 1].t - frames[0].t : 0;
@@ -256,6 +256,7 @@ export function ExerciseScene({ exercise }: { exercise: Exercise }) {
         </div>
       ) : null}
 
+      {showDetails ? (
       <div className="exercise-details">
         {exercise.steps.length ? (
           <section>
@@ -293,6 +294,7 @@ export function ExerciseScene({ exercise }: { exercise: Exercise }) {
           </section>
         ) : null}
       </div>
+      ) : null}
 
       {exercise.confidence !== "high" || exercise.notes ? (
         <p className="exercise-scene__note">

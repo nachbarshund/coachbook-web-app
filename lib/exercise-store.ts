@@ -3,6 +3,7 @@ import type { Exercise } from "@/lib/exercise";
 
 // Saved exercises live as private JSON blobs under this prefix.
 const PREFIX = "exercises/";
+const ID_PATTERN = /^[a-z0-9-]+$/;
 
 // Thumbnail is a base64 JPEG (no data-URL prefix).
 export type SavedExercise = { id: string; savedAt: string; exercise: Exercise; thumbnail: string | null };
@@ -17,6 +18,14 @@ export type ExerciseListItem = {
   ageGroup: string | null;
   preview: string[];
   thumbnail: string | null;
+};
+
+export type ExercisePatch = {
+  title: string;
+  category: string | null;
+  ageGroup: string | null;
+  steps: string[];
+  coachingPoints: string[];
 };
 
 function slugify(value: string): string {
@@ -42,6 +51,30 @@ export async function saveExercise(exercise: Exercise, thumbnail: string | null)
     addRandomSuffix: false,
   });
   return record;
+}
+
+export async function getExercise(id: string): Promise<SavedExercise | null> {
+  if (!ID_PATTERN.test(id)) return null;
+  try {
+    const result = await get(`${PREFIX}${id}.json`, { access: "private", useCache: false });
+    if (!result || result.statusCode !== 200) return null;
+    return (await new Response(result.stream).json()) as SavedExercise;
+  } catch {
+    return null;
+  }
+}
+
+export async function updateExercise(id: string, patch: ExercisePatch): Promise<SavedExercise | null> {
+  const current = await getExercise(id);
+  if (!current) return null;
+  const next: SavedExercise = { ...current, exercise: { ...current.exercise, ...patch } };
+  await put(`${PREFIX}${id}.json`, JSON.stringify(next), {
+    access: "private",
+    contentType: "application/json",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+  });
+  return next;
 }
 
 export async function listExercises(): Promise<ExerciseListItem[]> {

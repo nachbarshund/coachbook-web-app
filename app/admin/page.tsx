@@ -43,7 +43,7 @@ export default async function ExercisesPage() {
         <ul className="exercise-list">
           {items.map((item) => (
             <li key={item.id}>
-              <article className="card exercise-row">
+              <Link href={`/admin/exercises/${item.id}`} className="card exercise-row">
                 {item.thumbnail ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img className="exercise-row__thumb" src={item.thumbnail} alt="" />
@@ -62,7 +62,7 @@ export default async function ExercisesPage() {
                     <span className="chip">{item.stepCount} Schritte</span>
                   </div>
                 </div>
-              </article>
+              </Link>
             </li>
           ))}
         </ul>
