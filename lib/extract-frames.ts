@@ -1,7 +1,12 @@
 // Browser-only: samples evenly spaced JPEG frames from a video file.
 // Returns base64 strings (no data-URL prefix).
 
-export async function extractFrames(file: File, count = 8, maxWidth = 640): Promise<string[]> {
+export async function extractFrames(
+  file: File,
+  count = 8,
+  maxWidth = 640,
+  onFrame?: (done: number, total: number) => void,
+): Promise<string[]> {
   const url = URL.createObjectURL(file);
   try {
     const video = document.createElement("video");
@@ -37,6 +42,7 @@ export async function extractFrames(file: File, count = 8, maxWidth = 640): Prom
       );
       if (!blob) throw new Error("Frame konnte nicht erzeugt werden.");
       frames.push(await blobToBase64(blob));
+      onFrame?.(frames.length, count);
     }
     return frames;
   } finally {
