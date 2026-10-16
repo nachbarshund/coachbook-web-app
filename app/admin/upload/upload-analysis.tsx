@@ -54,7 +54,7 @@ function AnalysisProgress({ state }: { state: Extract<AnalysisState, { phase: "f
   return (
     <div className="analysis-progress">
       <span className="spinner" aria-hidden="true" />
-      <p className="analysis-progress__title">Claude analysiert die Übung…</p>
+      <p className="analysis-progress__title">Übung wird analysiert…</p>
       <div className="progress" aria-hidden="true">
         <span style={{ width: `${percent}%` }} />
       </div>
