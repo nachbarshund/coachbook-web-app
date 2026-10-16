@@ -5,7 +5,8 @@ import { getExercise, updateExercise, type ExercisePatch } from "@/lib/exercise-
 
 export const dynamic = "force-dynamic";
 
-// Read-only single exercise for the app (Bearer token). Thumbnail is left out.
+// Read-only single exercise for the app (Bearer token). Includes the thumbnail
+// (base64 JPEG without data-URL prefix, or null); the list endpoint leaves it out.
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!hasApiAccess(request)) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
@@ -15,7 +16,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!record) {
     return NextResponse.json({ error: "Nicht gefunden." }, { status: 404 });
   }
-  return NextResponse.json({ id: record.id, savedAt: record.savedAt, exercise: record.exercise });
+  return NextResponse.json({
+    id: record.id,
+    savedAt: record.savedAt,
+    exercise: record.exercise,
+    thumbnail: record.thumbnail ?? null,
+  });
 }
 
 const MAX_TEXT = 300;
