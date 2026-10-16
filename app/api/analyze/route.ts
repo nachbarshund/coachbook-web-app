@@ -3,12 +3,12 @@ import { NextResponse } from "next/server";
 import { hasAdminSession } from "@/lib/auth";
 import { EXERCISE_SCHEMA_ID, parseExerciseJson } from "@/lib/exercise";
 
-// Analysis of ~8 frames usually takes 10–40 seconds.
+// Analysis of up to 20 frames usually takes 15–60 seconds.
 export const maxDuration = 120;
 
 const MODEL = "claude-sonnet-5-5";
 const MIN_FRAMES = 3;
-const MAX_FRAMES = 12;
+const MAX_FRAMES = 20;
 
 const SYSTEM_PROMPT = `You analyze frames from a short youth football (soccer) training video and return ONE exercise as JSON.
 

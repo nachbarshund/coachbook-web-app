@@ -6,9 +6,6 @@ import { extractFrames } from "@/lib/extract-frames";
 import type { Exercise } from "@/lib/exercise";
 import { ExerciseScene } from "./exercise-scene";
 
-const FRAME_COUNT = 8;
-// Typical duration of the AI step; used only for the estimate shown to the user.
-const AI_EXPECTED_MS = 35_000;
 
 type Tab = "video" | "analyse";
 type UploadState =
@@ -18,8 +15,8 @@ type UploadState =
   | { phase: "error"; message: string };
 type AnalysisState =
   | { phase: "idle" }
-  | { phase: "frames"; framesDone: number }
-  | { phase: "ai"; startedAt: number }
+  | { phase: "frames"; framesDone: number; total: number }
+  | { phase: "ai"; startedAt: number; expectedMs: number }
   | { phase: "done"; exercise: Exercise }
   | { phase: "error"; message: string };
 
@@ -36,11 +33,11 @@ function AnalysisProgress({ state }: { state: Extract<AnalysisState, { phase: "f
   }, []);
 
   if (state.phase === "frames") {
-    const percent = (state.framesDone / FRAME_COUNT) * 20;
+    const percent = state.total ? (state.framesDone / state.total) * 20 : 0;
     return (
       <div className="analysis-progress">
         <span className="spinner" aria-hidden="true" />
-        <p className="analysis-progress__title">Frames werden aus dem Video gezogen ({state.framesDone}/{FRAME_COUNT})</p>
+        <p className="analysis-progress__title">Frames werden aus dem Video gezogen ({state.framesDone}/{state.total || "…"})</p>
         <div className="progress" aria-hidden="true">
           <span style={{ width: `${percent}%` }} />
         </div>
@@ -50,9 +47,9 @@ function AnalysisProgress({ state }: { state: Extract<AnalysisState, { phase: "f
   }
 
   const elapsed = Math.max(0, now - state.startedAt);
-  const percent = 20 + Math.min(75, (elapsed / AI_EXPECTED_MS) * 75);
-  const remaining = Math.max(0, Math.ceil((AI_EXPECTED_MS - elapsed) / 1000));
-  const overdue = elapsed > AI_EXPECTED_MS;
+  const percent = 20 + Math.min(75, (elapsed / state.expectedMs) * 75);
+  const remaining = Math.max(0, Math.ceil((state.expectedMs - elapsed) / 1000));
+  const overdue = elapsed > state.expectedMs;
 
   return (
     <div className="analysis-progress">
@@ -123,12 +120,12 @@ export function UploadAnalysis() {
   }
 
   async function runAnalysis(target: File) {
-    setAnalysis({ phase: "frames", framesDone: 0 });
+    setAnalysis({ phase: "frames", framesDone: 0, total: 0 });
     try {
-      const frames = await extractFrames(target, FRAME_COUNT, 640, (framesDone) => {
-        setAnalysis({ phase: "frames", framesDone });
+      const frames = await extractFrames(target, {}, (framesDone, total) => {
+        setAnalysis({ phase: "frames", framesDone, total });
       });
-      setAnalysis({ phase: "ai", startedAt: Date.now() });
+      setAnalysis({ phase: "ai", startedAt: Date.now(), expectedMs: 20_000 + frames.length * 1_000 });
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -1,12 +1,19 @@
 // Browser-only: samples evenly spaced JPEG frames from a video file.
 // Returns base64 JPEG data (no data-URL prefix) with the timestamp of each frame in seconds.
 
+export type FrameOptions = {
+  fps?: number; // frames per second of video
+  min?: number;
+  max?: number;
+  maxWidth?: number;
+};
+
 export async function extractFrames(
   file: File,
-  count = 8,
-  maxWidth = 640,
+  options: FrameOptions = {},
   onFrame?: (done: number, total: number) => void,
 ): Promise<{ data: string; t: number }[]> {
+  const { fps = 4, min = 8, max = 20, maxWidth = 640 } = options;
   const url = URL.createObjectURL(file);
   try {
     const video = document.createElement("video");
@@ -24,6 +31,9 @@ export async function extractFrames(
     if (!video.videoWidth || !video.videoHeight) {
       throw new Error("Das Video konnte nicht dekodiert werden. Bitte MP4 verwenden.");
     }
+
+    const count = Math.min(max, Math.max(min, Math.round(duration * fps)));
+    onFrame?.(0, count);
 
     const scale = Math.min(1, maxWidth / video.videoWidth);
     const canvas = document.createElement("canvas");
