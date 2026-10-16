@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { extractFrames } from "@/lib/extract-frames";
+import { renderExerciseGif } from "@/lib/exercise-gif";
 import type { Exercise } from "@/lib/exercise";
 import { ExerciseScene } from "./exercise-scene";
 
@@ -161,6 +162,12 @@ export function UploadAnalysis() {
       });
       const data = (await response.json().catch(() => null)) as { id?: string; error?: string } | null;
       if (!response.ok || !data?.id) throw new Error(data?.error ?? "Speichern fehlgeschlagen.");
+      // Sketch GIF for the app import. A failure here must not undo the saved exercise;
+      // it can be rendered later from the edit page.
+      try {
+        const gif = await renderExerciseGif({ ...exercise, title: title.trim() || exercise.title });
+        await fetch(`/api/exercises/${data.id}/gif`, { method: "PUT", headers: { "Content-Type": "image/gif" }, body: gif });
+      } catch {}
       setSaveState({ phase: "saved" });
     } catch {
       setSaveState({ phase: "error" });

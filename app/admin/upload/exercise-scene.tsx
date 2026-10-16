@@ -147,6 +147,78 @@ function Ball({ at }: { at: Point }) {
   );
 }
 
+// Pure sketch at `time` seconds into the animation. Shared by the live player and the GIF export.
+export function SceneSvg({ exercise, time, xmlns = false }: { exercise: Exercise; time: number; xmlns?: boolean }) {
+  const frames = exercise.keyframes;
+  const animated = frames.length >= 2;
+  const ballPath = frames.flatMap((f) => (f.ball ? [f.ball] : []));
+  const pose = animated ? poseAt(frames, time) : null;
+  // Margin only where goals stick out of the pitch; otherwise no empty frame around the sketch.
+  const pad = exercise.goals.length ? 4 : 0;
+  const shownBall = pose ? pose.ball : null;
+
+  return (
+    <svg xmlns={xmlns ? "http://www.w3.org/2000/svg" : undefined} viewBox={`${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`} role="img" aria-label={`Feldskizze: ${exercise.title}`}>
+      <defs>
+        <pattern id="net" width="1.4" height="1.4" patternUnits="userSpaceOnUse">
+          <path d="M0 0 L1.4 1.4 M1.4 0 L0 1.4" stroke="#ffffff" strokeWidth={0.18} opacity={0.8} />
+        </pattern>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffffff" />
+        </marker>
+      </defs>
+  
+      <Pitch />
+  
+      {exercise.goals.map((g) => (
+        <Goal key={g.id} goal={g} />
+      ))}
+  
+      {animated && ballPath.length > 1 ? (
+        <polyline
+          points={ballPath.map((p) => `${toX(p)},${toY(p)}`).join(" ")}
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth={0.5}
+          strokeDasharray="1.2 1.2"
+          opacity={0.8}
+        />
+      ) : null}
+  
+      {!animated
+        ? exercise.movements.map((m, index) => {
+            const from = exercise.people.find((p) => p.id === m.from) ?? exercise.cones.find((c) => c.id === m.from);
+            if (!from) return null;
+            return (
+              <line
+                key={`m${index}`}
+                x1={toX(from)}
+                y1={toY(from)}
+                x2={toX(m.to)}
+                y2={toY(m.to)}
+                stroke={m.kind === "pass" ? "#ffe066" : "#ffffff"}
+                strokeWidth={0.9}
+                strokeDasharray={m.kind === "dribble" ? "2 1.5" : undefined}
+                markerEnd="url(#arrow)"
+              />
+            );
+          })
+        : null}
+  
+      {exercise.cones.map((c) => (
+        <ConeMarker key={c.id} cone={c} />
+      ))}
+  
+      {exercise.people.map((p, index) => (
+        <Player key={p.id} at={pose?.people.get(p.id) ?? p} label={String(index + 1)} />
+      ))}
+  
+      {shownBall ? <Ball at={shownBall} /> : null}
+    </svg>
+  );
+}
+
+
 export function ExerciseScene({
   exercise,
   showDetails = true,
@@ -159,7 +231,6 @@ export function ExerciseScene({
   const frames = exercise.keyframes;
   const animated = frames.length >= 2;
   const duration = animated ? frames[frames.length - 1].t - frames[0].t : 0;
-  const ballPath = frames.flatMap((f) => (f.ball ? [f.ball] : []));
 
   const [time, setTime] = useState(0);
   const [playing, setPlaying] = useState(animated);
@@ -178,70 +249,9 @@ export function ExerciseScene({
     return () => cancelAnimationFrame(frame);
   }, [playing, animated, duration]);
 
-  const pose = animated ? poseAt(frames, time) : null;
-  // Margin only where goals stick out of the pitch; otherwise no empty frame around the sketch.
-  const pad = exercise.goals.length ? 4 : 0;
-  const shownBall = pose ? pose.ball : null;
-
   return (
     <div className={compact ? "exercise-scene exercise-scene--compact" : "exercise-scene"}>
-      <svg viewBox={`${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`} role="img" aria-label={`Feldskizze: ${exercise.title}`}>
-        <defs>
-          <pattern id="net" width="1.4" height="1.4" patternUnits="userSpaceOnUse">
-            <path d="M0 0 L1.4 1.4 M1.4 0 L0 1.4" stroke="#ffffff" strokeWidth={0.18} opacity={0.8} />
-          </pattern>
-          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffffff" />
-          </marker>
-        </defs>
-
-        <Pitch />
-
-        {exercise.goals.map((g) => (
-          <Goal key={g.id} goal={g} />
-        ))}
-
-        {animated && ballPath.length > 1 ? (
-          <polyline
-            points={ballPath.map((p) => `${toX(p)},${toY(p)}`).join(" ")}
-            fill="none"
-            stroke="#ffffff"
-            strokeWidth={0.5}
-            strokeDasharray="1.2 1.2"
-            opacity={0.8}
-          />
-        ) : null}
-
-        {!animated
-          ? exercise.movements.map((m, index) => {
-              const from = exercise.people.find((p) => p.id === m.from) ?? exercise.cones.find((c) => c.id === m.from);
-              if (!from) return null;
-              return (
-                <line
-                  key={`m${index}`}
-                  x1={toX(from)}
-                  y1={toY(from)}
-                  x2={toX(m.to)}
-                  y2={toY(m.to)}
-                  stroke={m.kind === "pass" ? "#ffe066" : "#ffffff"}
-                  strokeWidth={0.9}
-                  strokeDasharray={m.kind === "dribble" ? "2 1.5" : undefined}
-                  markerEnd="url(#arrow)"
-                />
-              );
-            })
-          : null}
-
-        {exercise.cones.map((c) => (
-          <ConeMarker key={c.id} cone={c} />
-        ))}
-
-        {exercise.people.map((p, index) => (
-          <Player key={p.id} at={pose?.people.get(p.id) ?? p} label={String(index + 1)} />
-        ))}
-
-        {shownBall ? <Ball at={shownBall} /> : null}
-      </svg>
+      <SceneSvg exercise={exercise} time={time} />
 
       {animated && !compact ? (
         <div className="exercise-player">

@@ -77,6 +77,29 @@ export async function updateExercise(id: string, patch: ExercisePatch): Promise<
   return next;
 }
 
+// The sketch GIF lives outside `exercises/`, so listing the JSON records never sees it.
+const GIF_PREFIX = "media/";
+
+export async function saveExerciseGif(id: string, data: ArrayBuffer): Promise<void> {
+  await put(`${GIF_PREFIX}${id}.gif`, Buffer.from(data), {
+    access: "private",
+    contentType: "image/gif",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+  });
+}
+
+export async function getExerciseGif(id: string): Promise<ReadableStream | null> {
+  if (!ID_PATTERN.test(id)) return null;
+  try {
+    const result = await get(`${GIF_PREFIX}${id}.gif`, { access: "private", useCache: false });
+    if (!result || result.statusCode !== 200) return null;
+    return result.stream;
+  } catch {
+    return null;
+  }
+}
+
 export async function listExercises(): Promise<ExerciseListItem[]> {
   const { blobs } = await list({ prefix: PREFIX });
   const records = await Promise.all(

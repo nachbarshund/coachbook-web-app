@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Exercise } from "@/lib/exercise";
 import { ExerciseScene } from "@/app/admin/upload/exercise-scene";
+import { renderExerciseGif } from "@/lib/exercise-gif";
 
 const fromLines = (value: string) =>
   value
@@ -17,6 +18,28 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
   const [steps, setSteps] = useState(exercise.steps.join("\n"));
   const [coaching, setCoaching] = useState(exercise.coachingPoints.join("\n"));
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+
+  const [gifStatus, setGifStatus] = useState<"idle" | "working" | "done" | "error">("idle");
+  const [gifError, setGifError] = useState("");
+
+  // Renders the sketch as a GIF in the browser and stores it for the app import.
+  async function makeGif() {
+    setGifStatus("working");
+    setGifError("");
+    try {
+      const blob = await renderExerciseGif(exercise);
+      const response = await fetch(`/api/exercises/${id}/gif`, {
+        method: "PUT",
+        headers: { "Content-Type": "image/gif" },
+        body: blob,
+      });
+      if (!response.ok) throw new Error("Hochladen fehlgeschlagen.");
+      setGifStatus("done");
+    } catch (error) {
+      setGifError(error instanceof Error ? error.message : "GIF fehlgeschlagen.");
+      setGifStatus("error");
+    }
+  }
 
   async function save() {
     setStatus("saving");
@@ -81,6 +104,11 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
             {status === "saving" ? "Speichert…" : "Speichern"}
           </button>
           {status === "saved" ? <span className="editor__status">Gespeichert</span> : null}
+          <button type="button" className="pill pill--ghost" disabled={gifStatus === "working"} onClick={makeGif}>
+            {gifStatus === "working" ? "GIF wird erzeugt…" : "GIF erzeugen"}
+          </button>
+          {gifStatus === "done" ? <span className="editor__status">GIF gespeichert</span> : null}
+          {gifStatus === "error" ? <span className="editor__status editor__status--error">{gifError}</span> : null}
           {status === "error" ? <span className="editor__status editor__status--error">Speichern fehlgeschlagen</span> : null}
         </div>
       </section>
