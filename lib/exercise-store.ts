@@ -17,7 +17,7 @@ export type ExerciseListItem = {
   category: string | null;
   ageGroup: string | null;
   preview: string[];
-  thumbnail: string | null;
+  exercise: Exercise;
 };
 
 export type ExercisePatch = {
@@ -100,7 +100,7 @@ export async function listExercises(): Promise<ExerciseListItem[]> {
               category: record.exercise.category,
               ageGroup: record.exercise.ageGroup,
               preview: record.exercise.steps.slice(0, 2),
-              thumbnail: record.thumbnail ? `data:image/jpeg;base64,${record.thumbnail}` : null,
+              exercise: record.exercise,
             },
           ]
         : [],

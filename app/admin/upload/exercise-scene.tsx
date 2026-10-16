@@ -147,7 +147,15 @@ function Ball({ at }: { at: Point }) {
   );
 }
 
-export function ExerciseScene({ exercise, showDetails = true }: { exercise: Exercise; showDetails?: boolean }) {
+export function ExerciseScene({
+  exercise,
+  showDetails = true,
+  compact = false,
+}: {
+  exercise: Exercise;
+  showDetails?: boolean;
+  compact?: boolean;
+}) {
   const frames = exercise.keyframes;
   const animated = frames.length >= 2;
   const duration = animated ? frames[frames.length - 1].t - frames[0].t : 0;
@@ -174,7 +182,7 @@ export function ExerciseScene({ exercise, showDetails = true }: { exercise: Exer
   const shownBall = pose ? pose.ball : null;
 
   return (
-    <div className="exercise-scene">
+    <div className={compact ? "exercise-scene exercise-scene--compact" : "exercise-scene"}>
       <svg viewBox={`-4 -4 ${W + 8} ${H + 8}`} role="img" aria-label={`Feldskizze: ${exercise.title}`}>
         <defs>
           <pattern id="net" width="1.4" height="1.4" patternUnits="userSpaceOnUse">
@@ -233,7 +241,7 @@ export function ExerciseScene({ exercise, showDetails = true }: { exercise: Exer
         {shownBall ? <Ball at={shownBall} /> : null}
       </svg>
 
-      {animated ? (
+      {animated && !compact ? (
         <div className="exercise-player">
           <button type="button" className="pill pill--ghost" onClick={() => setPlaying((p) => !p)}>
             {playing ? "Pause" : "Abspielen"}
@@ -256,7 +264,7 @@ export function ExerciseScene({ exercise, showDetails = true }: { exercise: Exer
         </div>
       ) : null}
 
-      {showDetails ? (
+      {showDetails && !compact ? (
       <div className="exercise-details">
         {exercise.steps.length ? (
           <section>
@@ -296,7 +304,7 @@ export function ExerciseScene({ exercise, showDetails = true }: { exercise: Exer
       </div>
       ) : null}
 
-      {exercise.confidence !== "high" || exercise.notes ? (
+      {!compact && (exercise.confidence !== "high" || exercise.notes) ? (
         <p className="exercise-scene__note">
           Schätzung ({exercise.confidence === "low" ? "geringe" : "mittlere"} Sicherheit)
           {exercise.notes ? `: ${exercise.notes}` : "."}

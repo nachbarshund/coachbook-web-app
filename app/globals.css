@@ -1063,8 +1063,13 @@ a {
   margin: 0;
   padding: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   width: 100%;
+}
+
+.exercise-list > li {
+  min-width: 0;
 }
 
 .exercise-row {
@@ -1084,13 +1089,14 @@ a {
   box-shadow: 0 4px 16px rgba(17, 20, 18, 0.08);
 }
 
-.exercise-row__thumb {
+.exercise-row__pitch {
   flex: none;
-  width: 72px;
-  aspect-ratio: 9 / 16;
-  object-fit: cover;
-  border-radius: 12px;
-  background: rgba(17, 20, 18, 0.06);
+  width: 124px;
+}
+
+.exercise-row__pitch .exercise-scene svg {
+  max-width: none;
+  border-radius: 10px;
 }
 
 .exercise-row__body {

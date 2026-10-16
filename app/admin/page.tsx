@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import { ExerciseScene } from "@/app/admin/upload/exercise-scene";
 import { listExercises, type ExerciseListItem } from "@/lib/exercise-store";
 
 export const metadata: Metadata = {
@@ -43,12 +44,9 @@ export default async function ExercisesPage() {
           {items.map((item) => (
             <li key={item.id}>
               <a href={`/admin/exercises/${item.id}`} className="card exercise-row">
-                {item.thumbnail ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img className="exercise-row__thumb" src={item.thumbnail} alt="" />
-                ) : (
-                  <div className="exercise-row__thumb exercise-row__thumb--empty" aria-hidden="true" />
-                )}
+                <div className="exercise-row__pitch">
+                  <ExerciseScene exercise={item.exercise} compact />
+                </div>
                 <div className="exercise-row__body">
                   <div className="exercise-row__meta">
                     {[item.category, item.ageGroup].filter(Boolean).join(" · ") || "Übung"}
