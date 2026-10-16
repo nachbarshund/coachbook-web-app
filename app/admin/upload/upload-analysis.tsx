@@ -92,6 +92,7 @@ export function UploadAnalysis() {
   const analysing = analysis.phase === "frames" || analysis.phase === "ai";
   const busy = uploading || analysing;
   const uploaded = upstate.phase === "done";
+  const sizeMb = file ? (file.size / 1024 / 1024).toFixed(1) : null;
 
   // Upload starts right after choosing the file; the preview appears once it is stored.
   async function chooseFile(next: File) {
@@ -166,182 +167,169 @@ export function UploadAnalysis() {
     setTab("video");
   }
 
-  const sizeMb = file ? (file.size / 1024 / 1024).toFixed(1) : null;
-  const analyseEnabled = uploaded;
+  const showDropzone = tab === "video" && !file;
+  const showRight = tab === "analyse" || file !== null;
 
   return (
-    <div className="analysis">
-      <section className="analysis__media">
-        <div className="stepper" role="tablist" aria-label="Schritte">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === "video"}
-            className={tab === "video" ? "is-active" : uploaded ? "is-done" : undefined}
-            disabled={busy && tab !== "video"}
-            onClick={() => setTab("video")}
-          >
-            <span className="stepper__num">1</span>
-            Video
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === "analyse"}
-            className={tab === "analyse" ? "is-active" : analysis.phase === "done" ? "is-done" : undefined}
-            disabled={!analyseEnabled}
-            onClick={() => setTab("analyse")}
-          >
-            <span className="stepper__num">2</span>
-            Analyse
-          </button>
-        </div>
+    <div className="analysis-wrap">
+      <div className="stepper" role="tablist" aria-label="Schritte">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "video"}
+          className={tab === "video" ? "is-active" : uploaded ? "is-done" : undefined}
+          onClick={() => !busy && setTab("video")}
+          disabled={busy && tab !== "video"}
+        >
+          <span className="stepper__num">1</span>
+          Video
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "analyse"}
+          className={tab === "analyse" ? "is-active" : analysis.phase === "done" ? "is-done" : undefined}
+          disabled={!uploaded}
+          onClick={() => setTab("analyse")}
+        >
+          <span className="stepper__num">2</span>
+          Analyse
+        </button>
+      </div>
 
-        {tab === "video" ? (
-          <>
+      <div className={`analysis${showRight ? "" : " analysis--single"}`}>
+        <section className="analysis__media">
+          {showDropzone ? (
             <label className="dropzone">
-              <span>{file ? "Anderes Video auswählen" : "Video auswählen, MP4 oder MOV."}</span>
+              <span>Video auswählen, MP4 oder MOV.</span>
               <input
                 type="file"
                 accept="video/*"
-                disabled={busy}
                 onChange={(event) => {
                   const next = event.target.files?.[0];
                   if (next) void chooseFile(next);
                 }}
               />
             </label>
+          ) : null}
 
-            <div className="video-frame">
-              {previewUrl ? (
+          {previewUrl ? (
+            <>
+              <div className="video-frame">
                 <video src={previewUrl} controls playsInline preload="metadata" />
-              ) : (
-                <div className="video-frame__hint">
-                  {uploading ? "Vorschau nach dem Upload" : "Noch kein Video ausgewählt"}
-                </div>
-              )}
-            </div>
-
-            {file ? (
+              </div>
               <div className="tag-row">
-                <span className="chip chip--pitch">{file.name}</span>
+                <span className="chip chip--pitch">{file?.name}</span>
                 <span className="chip">{sizeMb} MB</span>
               </div>
-            ) : null}
-          </>
-        ) : (
-          <>
-            <div className="video-frame">
-              {previewUrl ? <video src={previewUrl} controls playsInline preload="metadata" /> : null}
+            </>
+          ) : file && tab === "video" ? (
+            <div className="tag-row">
+              <span className="chip chip--pitch">{file.name}</span>
+              <span className="chip">{sizeMb} MB</span>
             </div>
-            {file ? (
-              <div className="tag-row">
-                <span className="chip chip--pitch">{file.name}</span>
-                <span className="chip">{sizeMb} MB</span>
-              </div>
-            ) : null}
-          </>
-        )}
-      </section>
+          ) : null}
+        </section>
 
-      <section className="analysis__result">
-        {tab === "video" ? (
-          <div className="card result-panel">
-            <div className="section-title">Upload</div>
-            {!file ? (
-              <p className="result-panel__text">Wähle ein Video aus. Der Upload startet direkt danach.</p>
-            ) : upstate.phase === "error" ? (
-              <>
-                <p className="result-panel__text result-panel__text--error">Upload fehlgeschlagen: {upstate.message}</p>
-                <div className="admin__actions">
-                  <button type="button" className="pill pill--ghost" onClick={reset}>
-                    Verwerfen
-                  </button>
-                  <button type="button" className="pill pill--solid" onClick={() => void runUpload(file)}>
-                    Erneut versuchen
-                  </button>
-                </div>
-              </>
-            ) : uploading ? (
-              <>
-                <div className="progress-row">
-                  <span className="spinner" aria-hidden="true" />
-                  <span>Video wird hochgeladen… {upstate.phase === "running" ? `${upstate.percentage} %` : ""}</span>
-                </div>
-                <div className="progress" aria-hidden="true">
-                  <span style={{ width: `${upstate.phase === "running" ? upstate.percentage : 0}%` }} />
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="result-panel__text">Video hochgeladen. Passt die Vorschau, geht es mit Weiter zur Analyse.</p>
-                <div className="admin__actions">
-                  <button type="button" className="pill pill--ghost" onClick={reset}>
-                    Verwerfen
-                  </button>
-                  <button type="button" className="pill pill--solid" disabled={!uploaded} onClick={goToAnalysis}>
-                    Weiter
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        ) : (
-          <div className="card result-panel">
-            <div className="result-panel__tabs" role="tablist" aria-label="Ansicht">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={resultTab === "scene"}
-                className={resultTab === "scene" ? "pill pill--solid" : "pill pill--ghost"}
-                onClick={() => setResultTab("scene")}
-              >
-                Szene
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={resultTab === "json"}
-                className={resultTab === "json" ? "pill pill--solid" : "pill pill--ghost"}
-                onClick={() => setResultTab("json")}
-              >
-                JSON
-              </button>
-            </div>
-
-            <div className="scene-placeholder" role="tabpanel">
-              {analysing ? (
-                <AnalysisProgress state={analysis} />
-              ) : analysis.phase === "error" ? (
-                <p className="result-panel__text result-panel__text--error">Analyse fehlgeschlagen: {analysis.message}</p>
-              ) : analysis.phase === "done" ? (
-                resultTab === "scene" ? (
-                  <ExerciseScene exercise={analysis.exercise} />
+        {showRight ? (
+          <section className="analysis__result">
+            {tab === "video" && file ? (
+              <div className="card result-panel">
+                <div className="section-title">Upload</div>
+                {upstate.phase === "error" ? (
+                  <>
+                    <p className="result-panel__text result-panel__text--error">Upload fehlgeschlagen: {upstate.message}</p>
+                    <div className="admin__actions">
+                      <button type="button" className="pill pill--ghost" onClick={reset}>
+                        Verwerfen
+                      </button>
+                      <button type="button" className="pill pill--solid" onClick={() => void runUpload(file)}>
+                        Erneut versuchen
+                      </button>
+                    </div>
+                  </>
+                ) : uploading ? (
+                  <>
+                    <div className="progress-row">
+                      <span className="spinner" aria-hidden="true" />
+                      <span>Video wird hochgeladen… {upstate.phase === "running" ? `${upstate.percentage} %` : ""}</span>
+                    </div>
+                    <div className="progress" aria-hidden="true">
+                      <span style={{ width: `${upstate.phase === "running" ? upstate.percentage : 0}%` }} />
+                    </div>
+                  </>
                 ) : (
-                  <pre className="exercise-json">{JSON.stringify(analysis.exercise, null, 2)}</pre>
-                )
-              ) : (
-                <p className="result-panel__text">Die Analyse startet automatisch.</p>
-              )}
-            </div>
+                  <>
+                    <p className="result-panel__text">Video hochgeladen. Passt die Vorschau, geht es mit Weiter zur Analyse.</p>
+                    <div className="admin__actions">
+                      <button type="button" className="pill pill--ghost" onClick={reset}>
+                        Verwerfen
+                      </button>
+                      <button type="button" className="pill pill--solid" disabled={!uploaded} onClick={goToAnalysis}>
+                        Weiter
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="card result-panel">
+                <div className="result-panel__tabs" role="tablist" aria-label="Ansicht">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={resultTab === "scene"}
+                    className={resultTab === "scene" ? "pill pill--solid" : "pill pill--ghost"}
+                    onClick={() => setResultTab("scene")}
+                  >
+                    Szene
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={resultTab === "json"}
+                    className={resultTab === "json" ? "pill pill--solid" : "pill pill--ghost"}
+                    onClick={() => setResultTab("json")}
+                  >
+                    JSON
+                  </button>
+                </div>
 
-            <div className="admin__actions">
-              <button type="button" className="pill pill--ghost" disabled={busy} onClick={reset}>
-                Neues Video
-              </button>
-              {analysis.phase === "error" && file ? (
-                <button type="button" className="pill pill--solid" onClick={() => void runAnalysis(file)}>
-                  Erneut analysieren
-                </button>
-              ) : (
-                <button type="button" className="pill pill--solid" disabled>
-                  Übernehmen
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </section>
+                <div className="scene-placeholder" role="tabpanel">
+                  {analysing ? (
+                    <AnalysisProgress state={analysis} />
+                  ) : analysis.phase === "error" ? (
+                    <p className="result-panel__text result-panel__text--error">Analyse fehlgeschlagen: {analysis.message}</p>
+                  ) : analysis.phase === "done" ? (
+                    resultTab === "scene" ? (
+                      <ExerciseScene exercise={analysis.exercise} />
+                    ) : (
+                      <pre className="exercise-json">{JSON.stringify(analysis.exercise, null, 2)}</pre>
+                    )
+                  ) : (
+                    <p className="result-panel__text">Die Analyse startet automatisch.</p>
+                  )}
+                </div>
+
+                <div className="admin__actions">
+                  <button type="button" className="pill pill--ghost" disabled={busy} onClick={reset}>
+                    Neues Video
+                  </button>
+                  {analysis.phase === "error" && file ? (
+                    <button type="button" className="pill pill--solid" onClick={() => void runAnalysis(file)}>
+                      Erneut analysieren
+                    </button>
+                  ) : (
+                    <button type="button" className="pill pill--solid" disabled>
+                      Übernehmen
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </section>
+        ) : null}
+      </div>
     </div>
   );
 }

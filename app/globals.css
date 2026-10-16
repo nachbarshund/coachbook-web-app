@@ -786,52 +786,11 @@ a {
 }
 
 /* Upload workflow: stepper, spinner and progress bar */
-.stepper {
-  display: flex;
-  gap: 8px;
-  list-style: none;
-  margin: 0 0 16px;
-  padding: 0;
-}
 
-.stepper button {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(17, 20, 18, 0.05);
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 600;
-}
 
-.stepper__num {
-  display: inline-grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: rgba(17, 20, 18, 0.12);
-  font-size: 12px;
-}
 
-.stepper .is-done .stepper__num,
-.stepper button.is-done .stepper__num {
-  background: #5be08f;
-  color: #111412;
-}
 
-.stepper button.is-active {
-  background: #14804a;
-  color: #ffffff;
-}
 
-.stepper button.is-active .stepper__num {
-  background: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-}
 
 .result-panel__text {
   margin: 0 0 16px;
@@ -886,51 +845,11 @@ a {
 }
 
 /* Upload workflow: stepper, spinner and progress bar */
-.stepper {
-  display: flex;
-  gap: 8px;
-  list-style: none;
-  margin: 0 0 16px;
-  padding: 0;
-}
 
-.stepper button {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(17, 20, 18, 0.05);
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 600;
-}
 
-.stepper__num {
-  display: inline-grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: rgba(17, 20, 18, 0.12);
-  font-size: 12px;
-}
 
-.stepper button.is-done .stepper__num {
-  background: #5be08f;
-  color: #111412;
-}
 
-.stepper button.is-active {
-  background: #14804a;
-  color: #ffffff;
-}
 
-.stepper button.is-active .stepper__num {
-  background: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-}
 
 .result-panel__text {
   margin: 0 0 16px;
@@ -990,16 +909,7 @@ a {
   }
 }
 
-.stepper button {
-  border: 0;
-  font: inherit;
-  cursor: pointer;
-}
 
-.stepper button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
 
 /* Exercise animation controls */
 .exercise-player {
@@ -1019,4 +929,74 @@ a {
   color: var(--muted);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+/* Step navigation: subtle segmented bar across the full width */
+.analysis-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stepper {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(17, 20, 18, 0.05);
+}
+
+.stepper button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stepper button.is-active {
+  background: #ffffff;
+  color: #111412;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.stepper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stepper__num {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(17, 20, 18, 0.1);
+  font-size: 11px;
+}
+
+.stepper button.is-done .stepper__num {
+  background: #5be08f;
+  color: #111412;
+}
+
+.stepper button.is-active .stepper__num {
+  background: #14804a;
+  color: #ffffff;
+}
+
+/* Before any upload: only the picker, centred in a narrower column */
+.analysis--single .analysis__media {
+  flex: 1 1 100%;
+  max-width: 560px;
 }
