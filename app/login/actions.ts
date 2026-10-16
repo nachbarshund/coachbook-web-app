@@ -12,7 +12,7 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
     return { error: "Bitte Passwort eingeben." };
   }
 
-  if (!process.env.ADMIN_PASSWORD_HASH || !process.env.SESSION_SECRET) {
+  if (!process.env.ADMIN_PASSWORD || !process.env.SESSION_SECRET) {
     return { error: "Der Zugang ist noch nicht konfiguriert." };
   }
 
