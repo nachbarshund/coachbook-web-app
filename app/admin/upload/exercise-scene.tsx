@@ -179,11 +179,13 @@ export function ExerciseScene({
   }, [playing, animated, duration]);
 
   const pose = animated ? poseAt(frames, time) : null;
+  // Margin only where goals stick out of the pitch; otherwise no empty frame around the sketch.
+  const pad = exercise.goals.length ? 4 : 0;
   const shownBall = pose ? pose.ball : null;
 
   return (
     <div className={compact ? "exercise-scene exercise-scene--compact" : "exercise-scene"}>
-      <svg viewBox={`-4 -4 ${W + 8} ${H + 8}`} role="img" aria-label={`Feldskizze: ${exercise.title}`}>
+      <svg viewBox={`${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`} role="img" aria-label={`Feldskizze: ${exercise.title}`}>
         <defs>
           <pattern id="net" width="1.4" height="1.4" patternUnits="userSpaceOnUse">
             <path d="M0 0 L1.4 1.4 M1.4 0 L0 1.4" stroke="#ffffff" strokeWidth={0.18} opacity={0.8} />

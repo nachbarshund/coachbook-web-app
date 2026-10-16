@@ -1008,8 +1008,7 @@ a {
   align-items: center;
   justify-content: center;
   gap: 14px;
-  min-height: 220px;
-  padding: 24px 8px;
+  padding: 12px 8px;
   text-align: center;
 }
 
@@ -1031,6 +1030,12 @@ a {
 
 .analysis-progress .progress-meta {
   margin: 0;
+}
+
+/* Scene previews stay compact in the upload and editor views */
+.analysis__media .exercise-scene svg,
+.editor__preview .exercise-scene svg {
+  max-width: 280px;
 }
 
 /* Exercise details: steps, material, coaching points */
@@ -1091,7 +1096,7 @@ a {
 
 .exercise-row__pitch {
   flex: none;
-  width: 124px;
+  width: 92px;
 }
 
 .exercise-row__pitch .exercise-scene svg {
