@@ -1,32 +1,34 @@
 # Coachbook Web
 
-Öffentliche Seite und Admin-Bereich für Coachbook. Next.js 16, App Router, TypeScript.
+Public site and admin area for Coachbook. Built with Next.js 16 (App Router) and TypeScript.
 
-## Lokal starten
+## Local development
 
 ```bash
 npm install
-cp .env.example .env.local   # Werte unten eintragen
+cp .env.example .env.local   # fill in the values below
 npm run dev
 ```
 
-## Umgebungsvariablen
+## Environment variables
 
-| Variable | Zweck |
+| Variable | Purpose |
 |---|---|
-| `ADMIN_PASSWORD_HASH` | scrypt-Hash des Admin-Passworts. Erzeugen mit `node scripts/hash-password.mjs "passwort"` |
-| `SESSION_SECRET` | Langer Zufallsstring zum Signieren des Session-Cookies, z. B. `openssl rand -hex 32` |
+| `ADMIN_PASSWORD_HASH` | scrypt hash of the admin password. Generate with `node scripts/hash-password.mjs "your-password"` |
+| `SESSION_SECRET` | Long random string used to sign the session cookie, e.g. `openssl rand -hex 32` |
 
-Beide Werte gehören nicht ins Repo. Lokal in `.env.local`, auf Vercel als Environment Variables.
+Never commit these values. Locally they live in `.env.local`; in production they are Vercel environment variables.
 
-## Struktur
+## Structure
 
-- `app/` Startseite, Login, Admin (`/admin`, `/admin/upload`), Rechtsseiten
-- `proxy.ts` leitet `/admin/*` ohne gültiges Session-Cookie auf `/login` um
-- `app/admin/layout.tsx` prüft die Session zusätzlich serverseitig
-- `lib/auth.ts` Passwortprüfung und signiertes Session-Cookie
+- `app/`: home page, login, admin (`/admin`, `/admin/upload`), legal pages
+- `proxy.ts`: redirects `/admin/*` to `/login` when there is no valid session cookie
+- `app/admin/layout.tsx`: verifies the session again on the server
+- `lib/auth.ts`: password verification and the signed session cookie
+- `scripts/hash-password.mjs`: creates the value for `ADMIN_PASSWORD_HASH`
 
 ## Status
 
-Die Analyse-Pipeline ist noch nicht angebunden. Der Upload-Screen zeigt nur die Vorschau.
-Impressum, Datenschutz und Kontakt sind Platzhalter.
+- The analysis pipeline is not connected yet. The upload screen only shows a local video preview.
+- Impressum, Datenschutz and Kontakt are placeholders.
+- The site is `noindex` until it is launched.
