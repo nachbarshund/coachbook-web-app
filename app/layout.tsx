@@ -14,9 +14,21 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const deployEnv = process.env.NEXT_PUBLIC_DEPLOY_ENV;
+  const branch = process.env.NEXT_PUBLIC_DEPLOY_BRANCH;
+  const label =
+    deployEnv === "preview" ? `Preview · ${branch || "unknown"}` : deployEnv === "production" ? null : "Lokal";
+
   return (
     <html lang="de">
-      <body>{children}</body>
+      <body>
+        {label ? (
+          <div className="env-ribbon" aria-label={`Umgebung: ${label}`}>
+            <span>{label}</span>
+          </div>
+        ) : null}
+        {children}
+      </body>
     </html>
   );
 }

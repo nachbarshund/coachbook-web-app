@@ -726,3 +726,35 @@ a {
     max-width: 100%;
   }
 }
+
+/* Environment ribbon: shown on preview and local builds only, never on production. */
+.env-ribbon {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 180px;
+  height: 180px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.env-ribbon span {
+  position: absolute;
+  top: 34px;
+  right: -52px;
+  width: 240px;
+  padding: 6px 0;
+  text-align: center;
+  transform: rotate(45deg);
+  background: #f2b01e;
+  color: #111412;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}

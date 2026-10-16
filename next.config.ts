@@ -30,6 +30,9 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   env: {
     NEXT_PUBLIC_APP_VERSION: appVersion,
+    // "production", "preview" or "development" (local). Drives the environment ribbon.
+    NEXT_PUBLIC_DEPLOY_ENV: process.env.VERCEL_ENV ?? "development",
+    NEXT_PUBLIC_DEPLOY_BRANCH: process.env.VERCEL_GIT_COMMIT_REF ?? "",
   },
 };
 
