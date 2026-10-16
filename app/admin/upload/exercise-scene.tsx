@@ -267,6 +267,44 @@ export function ExerciseScene({ exercise }: { exercise: Exercise }) {
         </div>
       ) : null}
 
+      <div className="exercise-details">
+        {exercise.steps.length ? (
+          <section>
+            <h3 className="exercise-details__title">Ablauf</h3>
+            <ol className="exercise-details__list">
+              {exercise.steps.map((step, index) => (
+                <li key={index}>{step}</li>
+              ))}
+            </ol>
+          </section>
+        ) : null}
+
+        {exercise.equipment.length ? (
+          <section>
+            <h3 className="exercise-details__title">Material</h3>
+            <ul className="exercise-details__list">
+              {exercise.equipment.map((item, index) => (
+                <li key={index}>
+                  {item.count !== null ? `${item.count} × ` : ""}
+                  {item.item}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {exercise.coachingPoints.length ? (
+          <section>
+            <h3 className="exercise-details__title">Coaching-Punkte</h3>
+            <ul className="exercise-details__list">
+              {exercise.coachingPoints.map((point, index) => (
+                <li key={index}>{point}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+      </div>
+
       {exercise.confidence !== "high" || exercise.notes ? (
         <p className="exercise-scene__note">
           Schätzung ({exercise.confidence === "low" ? "geringe" : "mittlere"} Sicherheit)

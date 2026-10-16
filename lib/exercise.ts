@@ -29,6 +29,7 @@ export type Exercise = {
   playerCount: number | null;
   cones: Cone[];
   goals: Goal[];
+  equipment: { item: string; count: number | null }[];
   people: (Point & { id: string; team: string | null })[];
   movements: { from: string; to: Point; kind: "pass" | "run" | "dribble" }[];
   keyframes: Keyframe[];
@@ -85,6 +86,12 @@ export function parseExerciseJson(raw: string): Exercise {
     ];
   });
 
+  const equipment = list(data.equipment).flatMap((item) => {
+    const record = item as { item?: unknown; count?: unknown };
+    const name = str(record.item);
+    return name ? [{ item: name, count: num(record.count) }] : [];
+  });
+
   const people = list(data.people).flatMap((item, index) => {
     const p = point(item);
     if (!p) return [];
@@ -126,6 +133,7 @@ export function parseExerciseJson(raw: string): Exercise {
     playerCount: num(data.playerCount),
     cones,
     goals,
+    equipment,
     people,
     movements,
     keyframes,
