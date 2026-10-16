@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 import { listExercises, type ExerciseListItem } from "@/lib/exercise-store";
 
 export const metadata: Metadata = {
@@ -10,6 +11,9 @@ export const metadata: Metadata = {
 export const instant = false;
 
 export default async function ExercisesPage() {
+  // Marks the page as request-time so the Blob listing is not prerendered at build.
+  await connection();
+
   let items: ExerciseListItem[] = [];
   let error: string | null = null;
   try {
