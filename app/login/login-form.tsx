@@ -1,21 +1,15 @@
-"use client";
+// Plain HTML form: the browser posts to /api/login and follows the redirect.
+const messages: Record<string, string> = {
+  empty: "Bitte Passwort eingeben.",
+  config: "Der Zugang ist noch nicht konfiguriert.",
+  wrong: "Passwort falsch. Bitte erneut versuchen.",
+};
 
-import { useActionState, useEffect } from "react";
-import { login, type LoginState } from "./actions";
-
-const initialState: LoginState = {};
-
-export function LoginForm() {
-  const [state, action, pending] = useActionState(login, initialState);
-
-  // Full page load to the admin area after a successful login.
-  useEffect(() => {
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional full page load
-    if (state.ok) window.location.assign("/admin");
-  }, [state.ok]);
+export function LoginForm({ error }: { error?: string }) {
+  const message = error ? messages[error] : undefined;
 
   return (
-    <form action={action} className="card login-card" noValidate>
+    <form action="/api/login" method="post" className="card login-card" noValidate>
       <div>
         <h1>Anmelden</h1>
         <p>Zugang nur für Coachbook-Admin.</p>
@@ -31,19 +25,19 @@ export function LoginForm() {
           placeholder="••••••••••••"
           className="input"
           required
-          aria-invalid={Boolean(state.error)}
-          aria-describedby={state.error ? "login-error" : undefined}
+          aria-invalid={Boolean(message)}
+          aria-describedby={message ? "login-error" : undefined}
         />
       </div>
 
-      {state.error ? (
+      {message ? (
         <div id="login-error" role="alert" className="notice">
-          {state.error}
+          {message}
         </div>
       ) : null}
 
-      <button type="submit" className="pill pill--solid pill--block" disabled={pending}>
-        {pending ? "Wird geprüft …" : "Anmelden"}
+      <button type="submit" className="pill pill--solid pill--block">
+        Anmelden
       </button>
     </form>
   );

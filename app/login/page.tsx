@@ -8,10 +8,11 @@ export const metadata: Metadata = {
   title: "Login",
 };
 
-export default async function LoginPage() {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   if (await hasAdminSession()) {
     redirect("/admin");
   }
+  const { error } = await searchParams;
 
   return (
     <div className="login">
@@ -24,7 +25,7 @@ export default async function LoginPage() {
       </header>
 
       <main className="login__main">
-        <LoginForm />
+        <LoginForm error={error} />
       </main>
 
       <SiteFooter />

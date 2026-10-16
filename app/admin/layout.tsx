@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { Brand } from "@/components/brand";
 import { hasAdminSession } from "@/lib/auth";
-import { logout } from "@/app/login/actions";
 import { AdminNav } from "./admin-nav";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -16,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <AdminNav />
         <div className="admin__sidebar-foot">
           <span>Angemeldet als Admin</span>
-          <form action={logout}>
+          <form action="/api/logout" method="post">
             <button type="submit">Abmelden</button>
           </form>
           <span className="site-footer__version">v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
