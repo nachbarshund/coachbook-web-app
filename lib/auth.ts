@@ -7,9 +7,9 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 /**
  * Single-admin auth for the first version.
  *
- * Required env vars (set in Vercel and in .env.local, never committed):
- * - ADMIN_PASSWORD: the admin password
- * - SESSION_SECRET: long random string used to sign the session cookie
+ * Required env var (set in Vercel and in .env.local, never committed):
+ * - ADMIN_PASSWORD: the admin password. It also signs the session cookie,
+ *   so changing it logs out all sessions.
  */
 export function verifyAdminPassword(password: string): boolean {
   const expected = process.env.ADMIN_PASSWORD;
@@ -17,8 +17,8 @@ export function verifyAdminPassword(password: string): boolean {
 }
 
 function sign(payload: string): string {
-  const secret = process.env.SESSION_SECRET;
-  if (!secret) throw new Error("SESSION_SECRET is not set");
+  const secret = process.env.ADMIN_PASSWORD;
+  if (!secret) throw new Error("ADMIN_PASSWORD is not set");
   return createHmac("sha256", secret).update(payload).digest("base64url");
 }
 

@@ -14,10 +14,9 @@ npm run dev
 
 | Variable | Purpose |
 |---|---|
-| `ADMIN_PASSWORD` | The admin password for `/login` |
-| `SESSION_SECRET` | Long random string used to sign the session cookie, e.g. `openssl rand -hex 32` |
+| `ADMIN_PASSWORD` | The admin password for `/login`. It also signs the session cookie, so changing it logs out all sessions |
 
-Never commit these values. Locally they live in `.env.local`; in production they are Vercel environment variables.
+Never commit this value. Locally it lives in `.env.local`; in production it is a Vercel environment variable.
 
 ## Structure
 
