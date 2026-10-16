@@ -6,6 +6,14 @@ export const EXERCISE_SCHEMA_ID = "coachbook.exercise/v1" as const;
 
 export type Point = { x: number; y: number };
 
+export type Cone = Point & { id: string; kind: "cone" | "pole" };
+
+export type Goal = Point & {
+  id: string;
+  width: number; // fraction of the field width
+  orientation: "horizontal" | "vertical";
+};
+
 export type Keyframe = {
   t: number; // seconds in the source video
   people: (Point & { id: string })[];
@@ -19,7 +27,8 @@ export type Exercise = {
   ageGroup: string | null;
   durationMinutes: number | null;
   playerCount: number | null;
-  cones: (Point & { id: string })[];
+  cones: Cone[];
+  goals: Goal[];
   people: (Point & { id: string; team: string | null })[];
   movements: { from: string; to: Point; kind: "pass" | "run" | "dribble" }[];
   keyframes: Keyframe[];
@@ -54,11 +63,26 @@ export function parseExerciseJson(raw: string): Exercise {
   const data = JSON.parse(raw.slice(start, end + 1)) as Record<string, unknown>;
   if (data.schema !== EXERCISE_SCHEMA_ID) throw new Error("Unexpected schema");
 
-  const cones = list(data.cones).flatMap((item, index) => {
+  const cones: Cone[] = list(data.cones).flatMap((item, index) => {
     const p = point(item);
     if (!p) return [];
-    const id = str((item as { id?: unknown }).id) ?? `c${index + 1}`;
-    return [{ id, ...p }];
+    const record = item as { id?: unknown; kind?: unknown };
+    const kind: "cone" | "pole" = record.kind === "pole" ? "pole" : "cone";
+    return [{ id: str(record.id) ?? `c${index + 1}`, kind, ...p }];
+  });
+
+  const goals: Goal[] = list(data.goals).flatMap((item, index) => {
+    const p = point(item);
+    const record = item as { id?: unknown; width?: unknown; orientation?: unknown };
+    if (!p || !isNumber(record.width)) return [];
+    return [
+      {
+        id: str(record.id) ?? `g${index + 1}`,
+        width: clamp01(record.width),
+        orientation: record.orientation === "vertical" ? "vertical" : "horizontal",
+        ...p,
+      },
+    ];
   });
 
   const people = list(data.people).flatMap((item, index) => {
@@ -101,6 +125,7 @@ export function parseExerciseJson(raw: string): Exercise {
     durationMinutes: num(data.durationMinutes),
     playerCount: num(data.playerCount),
     cones,
+    goals,
     people,
     movements,
     keyframes,
