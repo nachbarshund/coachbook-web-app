@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Brand, SiteFooter } from "@/components/brand";
 
 const steps = [
@@ -21,9 +20,9 @@ export default function HomePage() {
     <div className="home">
       <header className="site-header">
         <Brand />
-        <Link href="/login" className="pill pill--solid">
+        <a href="/login" className="pill pill--solid">
           Login
-        </Link>
+        </a>
       </header>
 
       <main className="home__main">

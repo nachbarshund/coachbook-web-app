@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Brand, SiteFooter } from "@/components/brand";
 import { hasAdminSession } from "@/lib/auth";
@@ -18,9 +17,10 @@ export default async function LoginPage() {
     <div className="login">
       <header className="site-header">
         <Brand />
-        <Link href="/" className="pill pill--ghost">
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- full page load on purpose */}
+        <a href="/" className="pill pill--ghost">
           Zur Startseite
-        </Link>
+        </a>
       </header>
 
       <main className="login__main">

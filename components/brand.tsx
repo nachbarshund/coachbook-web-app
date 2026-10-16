@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 
 export function BrandMark() {
   return (
@@ -11,10 +10,10 @@ export function BrandMark() {
 
 export function Brand({ href = "/" }: { href?: string }) {
   return (
-    <Link href={href} className="brand">
+    <a href={href} className="brand">
       <BrandMark />
       <span>Coachbook</span>
-    </Link>
+    </a>
   );
 }
 
@@ -25,9 +24,9 @@ export function SiteFooter() {
         © 2026 Coachbook <span className="site-footer__version">· v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
       </span>
       <nav aria-label="Rechtliches">
-        <Link href="/impressum">Impressum</Link>
-        <Link href="/datenschutz">Datenschutz</Link>
-        <Link href="/kontakt">Kontakt</Link>
+        <a href="/impressum">Impressum</a>
+        <a href="/datenschutz">Datenschutz</a>
+        <a href="/kontakt">Kontakt</a>
       </nav>
     </footer>
   );

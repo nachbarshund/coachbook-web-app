@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Brand, SiteFooter } from "@/components/brand";
 
 export const metadata: Metadata = {
@@ -11,9 +10,10 @@ export default function LegalPage() {
     <div className="home">
       <header className="site-header">
         <Brand />
-        <Link href="/" className="pill pill--ghost">
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- full page load on purpose */}
+        <a href="/" className="pill pill--ghost">
           Zur Startseite
-        </Link>
+        </a>
       </header>
       <main className="home__main" style={{ alignItems: "flex-start" }}>
         <h1 className="admin__title" style={{ margin: 0 }}>Kontakt</h1>
