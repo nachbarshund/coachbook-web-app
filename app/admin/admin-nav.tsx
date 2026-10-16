@@ -17,6 +17,7 @@ export function AdminNav() {
         <Link
           key={item.href}
           href={item.href}
+          prefetch={false}
           aria-current={pathname === item.href ? "page" : undefined}
         >
           {item.label}
