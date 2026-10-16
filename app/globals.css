@@ -765,8 +765,6 @@ a {
   width: 100%;
   max-width: 360px;
   margin: 0 auto;
-  color: #111412;
-  background: #f6f7f4;
   border-radius: 14px;
 }
 
@@ -1001,4 +999,24 @@ a {
 .stepper button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+/* Exercise animation controls */
+.exercise-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.exercise-player input[type="range"] {
+  flex: 1;
+  accent-color: #14804a;
+}
+
+.exercise-player__time {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }

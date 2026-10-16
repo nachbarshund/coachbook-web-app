@@ -1,12 +1,12 @@
 // Browser-only: samples evenly spaced JPEG frames from a video file.
-// Returns base64 strings (no data-URL prefix).
+// Returns base64 JPEG data (no data-URL prefix) with the timestamp of each frame in seconds.
 
 export async function extractFrames(
   file: File,
   count = 8,
   maxWidth = 640,
   onFrame?: (done: number, total: number) => void,
-): Promise<string[]> {
+): Promise<{ data: string; t: number }[]> {
   const url = URL.createObjectURL(file);
   try {
     const video = document.createElement("video");
@@ -32,16 +32,17 @@ export async function extractFrames(
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas ist nicht verfügbar.");
 
-    const frames: string[] = [];
+    const frames: { data: string; t: number }[] = [];
     for (let i = 0; i < count; i++) {
-      video.currentTime = (duration * (i + 0.5)) / count;
+      const t = (duration * (i + 0.5)) / count;
+      video.currentTime = t;
       await waitForEvent(video, "seeked");
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob(resolve, "image/jpeg", 0.7),
       );
       if (!blob) throw new Error("Frame konnte nicht erzeugt werden.");
-      frames.push(await blobToBase64(blob));
+      frames.push({ data: await blobToBase64(blob), t });
       onFrame?.(frames.length, count);
     }
     return frames;

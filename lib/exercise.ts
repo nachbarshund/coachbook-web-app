@@ -6,6 +6,12 @@ export const EXERCISE_SCHEMA_ID = "coachbook.exercise/v1" as const;
 
 export type Point = { x: number; y: number };
 
+export type Keyframe = {
+  t: number; // seconds in the source video
+  people: (Point & { id: string })[];
+  ball: Point | null;
+};
+
 export type Exercise = {
   schema: typeof EXERCISE_SCHEMA_ID;
   title: string;
@@ -16,6 +22,7 @@ export type Exercise = {
   cones: (Point & { id: string })[];
   people: (Point & { id: string; team: string | null })[];
   movements: { from: string; to: Point; kind: "pass" | "run" | "dribble" }[];
+  keyframes: Keyframe[];
   steps: string[];
   coachingPoints: string[];
   confidence: "low" | "medium" | "high";
@@ -71,6 +78,19 @@ export function parseExerciseJson(raw: string): Exercise {
     return [{ from, to, kind }];
   });
 
+  const keyframes = list(data.keyframes)
+    .flatMap((item) => {
+      const record = item as { t?: unknown; people?: unknown; ball?: unknown };
+      if (!isNumber(record.t)) return [];
+      const framePeople = list(record.people).flatMap((p, index) => {
+        const pt = point(p);
+        if (!pt) return [];
+        return [{ id: str((p as { id?: unknown }).id) ?? `p${index + 1}`, ...pt }];
+      });
+      return [{ t: Math.max(0, record.t), people: framePeople, ball: point(record.ball) }];
+    })
+    .sort((a, b) => a.t - b.t);
+
   const confidence = data.confidence === "high" || data.confidence === "medium" ? data.confidence : "low";
 
   return {
@@ -83,6 +103,7 @@ export function parseExerciseJson(raw: string): Exercise {
     cones,
     people,
     movements,
+    keyframes,
     steps: list(data.steps).flatMap((s) => (str(s) ? [str(s) as string] : [])),
     coachingPoints: list(data.coachingPoints).flatMap((s) => (str(s) ? [str(s) as string] : [])),
     confidence,
