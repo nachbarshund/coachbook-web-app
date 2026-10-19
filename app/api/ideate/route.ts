@@ -22,6 +22,8 @@ Rules:
 ${EXERCISE_FIELD_RULES}
 - The idea decides everything it states: number of players, teams, field size, goals, materials, duration, age group. Take these literally. A game form such as "11 gegen 11" or "7 gegen 7" means that many players per team, so "people" lists all of them with "team" set (for example "A" and "B") and "playerCount" is the total. Do not shrink the game to fewer players to make the sketch simpler.
 - Game forms (a match, a final game, small-sided games) are laid out with the goals at the two ends of the field, so the goals lie horizontally at y near 0 and y near 1. Place the teams in a plausible formation on their own half.
+- Set "team" to the team's name exactly as the coach wrote it, in German and capitalised ("Gelb", "Rot", "Blau"). If the idea names no teams but there are two sides, use "Team A" and "Team B". Every player of a game form needs a team.
+- Goals: for a game form give both goals ("goals" has two entries, one at each end) with "width" 0.2 and orientation "horizontal". A drill with mini goals lists each of them. Never leave out a goal the idea mentions.
 - Give every player an id: "p1", "p2", … or a number when the idea names one.
 - If the idea says nothing about a detail, choose a sensible default for the age group and put it in "notes" ("angenommen: …"). Do not invent rules or materials the idea contradicts.
 - A photo or sketch shows the layout: read positions, lines and labels from it and follow them over your own guesses. Handwritten text on it counts as part of the idea.
