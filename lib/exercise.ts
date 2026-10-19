@@ -4,6 +4,46 @@
 
 export const EXERCISE_SCHEMA_ID = "coachbook.exercise/v1" as const;
 
+// Fixed classification axes. The raw values are stable keys (stored in JSON, API and
+// the iOS app); the German labels are for display only. Both axes are optional in the
+// schema so exercises created before this extension stay valid.
+export const EXERCISE_PHASES = ["warmup", "main", "match", "cooldown"] as const;
+export type ExercisePhase = (typeof EXERCISE_PHASES)[number];
+
+export const EXERCISE_TOPICS = [
+  "passing",
+  "dribbling",
+  "finishing",
+  "defending",
+  "coordination",
+  "smallsided",
+] as const;
+export type ExerciseTopic = (typeof EXERCISE_TOPICS)[number];
+
+export const EXERCISE_PHASE_LABELS: Record<ExercisePhase, string> = {
+  warmup: "Aufwärmen",
+  main: "Hauptteil",
+  match: "Abschlussspiel",
+  cooldown: "Ausklang",
+};
+
+export const EXERCISE_TOPIC_LABELS: Record<ExerciseTopic, string> = {
+  passing: "Passen",
+  dribbling: "Dribbling/Ballführung",
+  finishing: "Torabschluss",
+  defending: "Verteidigen",
+  coordination: "Koordination",
+  smallsided: "Spielform",
+};
+
+export function parsePhase(value: unknown): ExercisePhase | null {
+  return (EXERCISE_PHASES as readonly unknown[]).includes(value) ? (value as ExercisePhase) : null;
+}
+
+export function parseTopic(value: unknown): ExerciseTopic | null {
+  return (EXERCISE_TOPICS as readonly unknown[]).includes(value) ? (value as ExerciseTopic) : null;
+}
+
 export type Point = { x: number; y: number };
 
 export type Cone = Point & { id: string; kind: "cone" | "pole" };
@@ -23,7 +63,10 @@ export type Keyframe = {
 export type Exercise = {
   schema: typeof EXERCISE_SCHEMA_ID;
   title: string;
-  category: string | null;
+  category: string | null; // legacy free text, kept for backwards compatibility
+  // Optional because records saved before this extension have neither key.
+  phase?: ExercisePhase | null; // where in the session: warmup, main, match, cooldown
+  topic?: ExerciseTopic | null; // what is trained: one main topic
   ageGroup: string | null;
   durationMinutes: number | null;
   playerCount: number | null;
@@ -128,6 +171,8 @@ export function parseExerciseJson(raw: string): Exercise {
     schema: EXERCISE_SCHEMA_ID,
     title: str(data.title) ?? "Unbenannte Übung",
     category: str(data.category),
+    phase: parsePhase(data.phase),
+    topic: parseTopic(data.topic),
     ageGroup: str(data.ageGroup),
     durationMinutes: num(data.durationMinutes),
     playerCount: num(data.playerCount),
