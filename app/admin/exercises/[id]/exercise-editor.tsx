@@ -2,7 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Exercise } from "@/lib/exercise";
+import {
+  EXERCISE_PHASES,
+  EXERCISE_PHASE_LABELS,
+  EXERCISE_TOPICS,
+  EXERCISE_TOPIC_LABELS,
+  parsePhase,
+  parseTopic,
+  type Exercise,
+  type ExercisePhase,
+  type ExerciseTopic,
+} from "@/lib/exercise";
 import { ExerciseScene } from "@/app/admin/upload/exercise-scene";
 import { renderExerciseGif } from "@/lib/exercise-gif";
 
@@ -16,6 +26,8 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
   const router = useRouter();
   const [title, setTitle] = useState(exercise.title);
   const [category, setCategory] = useState(exercise.category ?? "");
+  const [phase, setPhase] = useState<ExercisePhase | null>(exercise.phase ?? null);
+  const [topic, setTopic] = useState<ExerciseTopic | null>(exercise.topic ?? null);
   const [ageGroup, setAgeGroup] = useState(exercise.ageGroup ?? "");
   const [steps, setSteps] = useState(exercise.steps.join("\n"));
   const [coaching, setCoaching] = useState(exercise.coachingPoints.join("\n"));
@@ -57,6 +69,8 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
         body: JSON.stringify({
           title: title.trim(),
           category: category.trim() || null,
+          phase,
+          topic,
           ageGroup: ageGroup.trim() || null,
           steps: fromLines(steps),
           coachingPoints: fromLines(coaching),
@@ -91,6 +105,31 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
           <span>Titel</span>
           <input value={title} onChange={(event) => setTitle(event.target.value)} />
         </label>
+
+        <div className="editor__row">
+          <label className="form-field">
+            <span>Phase</span>
+            <select value={phase ?? ""} onChange={(event) => setPhase(parsePhase(event.target.value))}>
+              <option value="">Nicht festgelegt</option>
+              {EXERCISE_PHASES.map((value) => (
+                <option key={value} value={value}>
+                  {EXERCISE_PHASE_LABELS[value]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="form-field">
+            <span>Thema</span>
+            <select value={topic ?? ""} onChange={(event) => setTopic(parseTopic(event.target.value))}>
+              <option value="">Nicht festgelegt</option>
+              {EXERCISE_TOPICS.map((value) => (
+                <option key={value} value={value}>
+                  {EXERCISE_TOPIC_LABELS[value]}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
 
         <div className="editor__row">
           <label className="form-field">

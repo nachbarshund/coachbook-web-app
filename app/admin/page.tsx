@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { ExerciseScene } from "@/app/admin/upload/exercise-scene";
 import { SavedNotice } from "./saved-notice";
+import { EXERCISE_PHASE_LABELS, EXERCISE_TOPIC_LABELS } from "@/lib/exercise";
 import { listExercises, type ExerciseListItem } from "@/lib/exercise-store";
 
 export const metadata: Metadata = {
@@ -64,6 +65,12 @@ export default async function ExercisesPage({ searchParams }: { searchParams: Pr
                   <h2>{item.title}</h2>
                   {item.preview.length ? <p className="exercise-row__preview">{item.preview.join(" · ")}</p> : null}
                   <div className="tag-row">
+                    {item.exercise.phase ? (
+                      <span className="chip chip--pitch">{EXERCISE_PHASE_LABELS[item.exercise.phase]}</span>
+                    ) : null}
+                    {item.exercise.topic ? (
+                      <span className="chip chip--pitch">{EXERCISE_TOPIC_LABELS[item.exercise.topic]}</span>
+                    ) : null}
                     <span className="chip">{new Date(item.savedAt).toLocaleDateString("de-DE")}</span>
                     {item.playerCount ? <span className="chip">{item.playerCount} Spieler</span> : null}
                     <span className="chip">{item.stepCount} Schritte</span>

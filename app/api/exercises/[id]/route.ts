@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { hasAdminSession } from "@/lib/auth";
 import { hasApiAccess } from "@/lib/api-auth";
+import { parsePhase, parseTopic } from "@/lib/exercise";
 import { getExercise, updateExercise, type ExercisePatch } from "@/lib/exercise-store";
 
 export const dynamic = "force-dynamic";
@@ -56,6 +57,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   const patch: ExercisePatch = {
     title,
     category: text(body?.category, 80),
+    phase: parsePhase(body?.phase),
+    topic: parseTopic(body?.topic),
     ageGroup: text(body?.ageGroup, 40),
     steps,
     coachingPoints,

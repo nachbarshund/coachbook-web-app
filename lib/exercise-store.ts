@@ -1,5 +1,5 @@
 import { get, list, put } from "@vercel/blob";
-import type { Exercise } from "@/lib/exercise";
+import type { Exercise, ExercisePhase, ExerciseTopic } from "@/lib/exercise";
 
 // Saved exercises live as private JSON blobs under this prefix.
 const PREFIX = "exercises/";
@@ -23,6 +23,8 @@ export type ExerciseListItem = {
 export type ExercisePatch = {
   title: string;
   category: string | null;
+  phase: ExercisePhase | null;
+  topic: ExerciseTopic | null;
   ageGroup: string | null;
   steps: string[];
   coachingPoints: string[];

@@ -7,6 +7,8 @@ export const EXERCISE_JSON_SHAPE = `Return only a JSON object, no prose, no code
   "schema": "${EXERCISE_SCHEMA_ID}",
   "title": string (German, max 4 words, e.g. "Passspiel Mitte–links"),
   "category": string | null (e.g. "Passspiel", "Torschuss", "Koordination"),
+  "phase": "warmup" | "main" | "match" | "cooldown" | null,
+  "topic": "passing" | "dribbling" | "finishing" | "defending" | "coordination" | "smallsided" | null,
   "ageGroup": string | null (e.g. "F-Jugend"),
   "durationMinutes": number | null,
   "playerCount": number | null,
@@ -25,5 +27,10 @@ export const EXERCISE_JSON_SHAPE = `Return only a JSON object, no prose, no code
 export const EXERCISE_FIELD_RULES = `- Coordinates are normalized 0..1. x runs across the field from left to right, y runs along the field from top (0) to bottom (1), as seen from the camera.
 - Cones: "cone" is a flat red disc on the grass. "pole" is a tall red stick with a base. Keep them apart; do not call a pole a cone.
 - Goals: a goal is a frame with a net. Give its centre line position, its width as a fraction of the field width, and whether it lies horizontally (across the field) or vertically.
+- Classification: pick exactly one "phase" and exactly one "topic", or null when it cannot be told. Never invent other values.
+  - phase = where the exercise sits in a session: "warmup" (Aufwärmen: easy movement, ball familiarisation), "main" (Hauptteil: the core technical or tactical drill), "match" (Abschlussspiel: a game form at the end of the session), "cooldown" (Ausklang: calm wind-down).
+  - topic = the one main thing trained: "passing" (Passen), "dribbling" (Dribbling/Ballführung), "finishing" (Torabschluss: shots on goal), "defending" (Verteidigen), "coordination" (Koordination: running, agility, balance), "smallsided" (Spielform: small-sided or full game forms such as 4 gegen 4).
+  - "Abschluss" is ambiguous: a shooting drill is topic "finishing", a final game is phase "match". Decide each axis separately.
+  - A game form is usually phase "match" and topic "smallsided". Set the phase from the idea if it names one, otherwise from the content.
 - Steps ("steps") are short, watch-friendly instructions in German, one drill action per step, in order.
 - "movements" lists each pass or run once as "from" (player id) to a target point.`;

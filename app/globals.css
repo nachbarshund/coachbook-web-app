@@ -1188,6 +1188,7 @@ a {
 }
 
 .form-field input,
+.form-field select,
 .form-field textarea {
   font: inherit;
   font-size: 15px;

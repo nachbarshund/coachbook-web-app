@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { hasAdminSession } from "@/lib/auth";
 import { hasApiAccess } from "@/lib/api-auth";
-import { EXERCISE_SCHEMA_ID, type Exercise } from "@/lib/exercise";
+import { EXERCISE_SCHEMA_ID, parsePhase, parseTopic, type Exercise } from "@/lib/exercise";
 import { listExercises, saveExercise } from "@/lib/exercise-store";
 
 export const dynamic = "force-dynamic";
@@ -40,8 +40,11 @@ export async function POST(request: Request) {
   const thumbnail =
     typeof body?.thumbnail === "string" && body.thumbnail.length <= MAX_THUMBNAIL_CHARS ? body.thumbnail : null;
 
+  // Keep only known classification values, whatever the client sent.
+  const clean: Exercise = { ...exercise, phase: parsePhase(exercise.phase), topic: parseTopic(exercise.topic) };
+
   try {
-    const saved = await saveExercise(exercise, thumbnail);
+    const saved = await saveExercise(clean, thumbnail);
     return NextResponse.json({ id: saved.id });
   } catch (error) {
     console.error("Save failed", error instanceof Error ? error.message : error);
