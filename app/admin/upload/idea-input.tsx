@@ -44,6 +44,7 @@ export function IdeaInput() {
   const [idea, setIdea] = useState("");
   const [image, setImage] = useState<ResizedImage | null>(null);
   const [imageError, setImageError] = useState("");
+  const [tab, setTab] = useState<"idea" | "result">("idea");
   const [state, setState] = useState<GenerateState>({ phase: "idle" });
   const [resultTab, setResultTab] = useState<"scene" | "json">("scene");
   const [title, setTitle] = useState("");
@@ -65,6 +66,7 @@ export function IdeaInput() {
 
   // First run sends only idea and image; a revision also sends the current result and the correction.
   async function generate(revision?: { previous: Exercise; feedback: string }) {
+    setTab("result");
     setState({ phase: "running", startedAt: Date.now() });
     setSaveState("idle");
     try {
@@ -113,6 +115,7 @@ export function IdeaInput() {
 
   function reset() {
     if (running) return;
+    setTab("idea");
     setIdea("");
     setImage(null);
     setImageError("");
@@ -123,154 +126,210 @@ export function IdeaInput() {
 
   const exercise = state.phase === "done" ? state.exercise : null;
 
+  const ideaCard = (
+    <div className="card result-panel">
+      <div className="section-title">Idee</div>
+      <label className="form-field">
+        <span>Beschreibung</span>
+        <textarea
+          rows={8}
+          value={idea}
+          disabled={running}
+          maxLength={3000}
+          placeholder="z. B. Abschlussspiel 11 gegen 11 auf ganzem Feld, zwei Tore, Gelb gegen Rot, 20 Minuten"
+          onChange={(event) => setIdea(event.target.value)}
+        />
+      </label>
+
+      {image ? (
+        <figure className="editor__gif">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={image.previewUrl} alt="Hochgeladene Skizze oder Foto" />
+          <figcaption>Skizze oder Foto, wird mit der Idee ausgewertet</figcaption>
+        </figure>
+      ) : (
+        <label className="dropzone">
+          <span>Optional: Foto oder Handskizze auswählen.</span>
+          <input
+            type="file"
+            accept="image/*"
+            disabled={running}
+            onChange={(event) => {
+              const next = event.target.files?.[0];
+              if (next) void chooseImage(next);
+            }}
+          />
+        </label>
+      )}
+      {imageError ? <p className="result-panel__text result-panel__text--error">{imageError}</p> : null}
+
+      <div className="admin__actions">
+        {image ? (
+          <button type="button" className="pill pill--ghost" disabled={running} onClick={() => setImage(null)}>
+            Bild entfernen
+          </button>
+        ) : null}
+        <button type="button" className="pill pill--ghost" disabled={running} onClick={reset}>
+          Neu beginnen
+        </button>
+        <button type="button" className="pill pill--solid" disabled={running || !hasInput} onClick={() => void generate()}>
+          {exercise ? "Neu erzeugen" : "Übung erzeugen"}
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="analysis">
-      <section className="analysis__media">
-        <div className="card result-panel">
-          <label className="form-field">
-            <span>Idee</span>
-            <textarea
-              rows={8}
-              value={idea}
-              disabled={running}
-              maxLength={3000}
-              placeholder="z. B. Abschlussspiel 11 gegen 11 auf ganzem Feld, zwei Tore, Gelb gegen Rot, 20 Minuten"
-              onChange={(event) => setIdea(event.target.value)}
-            />
-          </label>
+    <div className="analysis-wrap">
+      <div className="stepper" role="tablist" aria-label="Schritte">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "idea"}
+          className={tab === "idea" ? "is-active" : state.phase !== "idle" ? "is-done" : undefined}
+          disabled={running}
+          onClick={() => setTab("idea")}
+        >
+          <span className="stepper__num">1</span>
+          Idee
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "result"}
+          className={tab === "result" ? "is-active" : exercise ? "is-done" : undefined}
+          disabled={state.phase === "idle"}
+          onClick={() => setTab("result")}
+        >
+          <span className="stepper__num">2</span>
+          Übung
+        </button>
+      </div>
 
-          {image ? (
-            <figure className="editor__gif">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={image.previewUrl} alt="Hochgeladene Skizze oder Foto" />
-              <figcaption>Skizze oder Foto, wird mit der Idee ausgewertet</figcaption>
-            </figure>
-          ) : (
-            <label className="dropzone">
-              <span>Optional: Foto oder Handskizze auswählen.</span>
-              <input
-                type="file"
-                accept="image/*"
-                disabled={running}
-                onChange={(event) => {
-                  const next = event.target.files?.[0];
-                  if (next) void chooseImage(next);
-                }}
-              />
-            </label>
-          )}
-          {imageError ? <p className="result-panel__text result-panel__text--error">{imageError}</p> : null}
-
-          <div className="admin__actions">
-            {image ? (
-              <button type="button" className="pill pill--ghost" disabled={running} onClick={() => setImage(null)}>
-                Bild entfernen
-              </button>
-            ) : null}
-            <button type="button" className="pill pill--ghost" disabled={running} onClick={reset}>
-              Neu beginnen
-            </button>
-            <button
-              type="button"
-              className="pill pill--solid"
-              disabled={running || !hasInput}
-              onClick={() => void generate()}
-            >
-              {running ? "Erzeugt…" : exercise ? "Neu erzeugen" : "Übung erzeugen"}
-            </button>
-          </div>
+      {tab === "idea" ? (
+        <div className="analysis analysis--single">
+          <section className="analysis__media">{ideaCard}</section>
         </div>
-      </section>
-
-      <section className="analysis__result">
-        <div className="card result-panel">
-          <label className="title-field">
-            <span>Titel der Übung</span>
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              disabled={!exercise}
-              placeholder="Wird aus der Idee vorgeschlagen"
-            />
-          </label>
-
-          <div className="result-panel__tabs" role="tablist" aria-label="Ansicht">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={resultTab === "scene"}
-              className={resultTab === "scene" ? "pill pill--solid" : "pill pill--ghost"}
-              onClick={() => setResultTab("scene")}
-            >
-              Szene
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={resultTab === "json"}
-              className={resultTab === "json" ? "pill pill--solid" : "pill pill--ghost"}
-              onClick={() => setResultTab("json")}
-            >
-              JSON
-            </button>
-          </div>
-
-          <div className="scene-placeholder" role="tabpanel">
-            {state.phase === "running" ? (
-              <Progress startedAt={state.startedAt} />
-            ) : state.phase === "error" ? (
-              <p className="result-panel__text result-panel__text--error">Erzeugen fehlgeschlagen: {state.message}</p>
-            ) : exercise ? (
-              resultTab === "scene" ? (
-                <ExerciseScene exercise={exercise} />
-              ) : (
-                <pre className="exercise-json">{JSON.stringify(exercise, null, 2)}</pre>
-              )
-            ) : (
-              <p className="result-panel__text">Idee beschreiben oder Skizze hochladen, dann Übung erzeugen.</p>
-            )}
-          </div>
-
-          {exercise ? (
-            <>
-              <label className="form-field">
-                <span>Korrektur, z. B. „Tore an die Seiten, ein Spieler mehr bei Gelb“</span>
-                <textarea
-                  rows={3}
-                  value={feedback}
-                  disabled={running}
-                  maxLength={3000}
-                  onChange={(event) => setFeedback(event.target.value)}
-                />
-              </label>
+      ) : (
+        <div className="analysis">
+          <section className="analysis__media">
+            <div className="card result-panel">
+              <div className="section-title">Deine Idee</div>
+              {idea.trim() ? <p className="result-panel__text">{idea}</p> : null}
+              {image ? (
+                <figure className="editor__gif">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={image.previewUrl} alt="Hochgeladene Skizze oder Foto" />
+                </figure>
+              ) : null}
               <div className="admin__actions">
-                <button
-                  type="button"
-                  className="pill pill--ghost"
-                  disabled={running || !feedback.trim()}
-                  onClick={() => void generate({ previous: { ...exercise, title: title.trim() || exercise.title }, feedback })}
-                >
-                  Nachbessern
-                </button>
-                <button
-                  type="button"
-                  className="pill pill--solid"
-                  disabled={running || saveState === "saving" || saveState === "saved"}
-                  onClick={() => void save(exercise)}
-                >
-                  {saveState === "saved"
-                    ? "Gespeichert"
-                    : saveState === "saving"
-                      ? "Speichert…"
-                      : saveState === "error"
-                        ? "Erneut speichern"
-                        : "Übernehmen"}
+                <button type="button" className="pill pill--ghost" disabled={running} onClick={() => setTab("idea")}>
+                  Idee ändern
                 </button>
               </div>
-            </>
-          ) : null}
+            </div>
+          </section>
+
+          <section className="analysis__result">
+            <div className="card result-panel">
+              <label className="title-field">
+                <span>Titel der Übung</span>
+                <input
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  disabled={!exercise}
+                  placeholder="Wird aus der Idee vorgeschlagen"
+                />
+              </label>
+
+              <div className="result-panel__tabs" role="tablist" aria-label="Ansicht">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={resultTab === "scene"}
+                  className={resultTab === "scene" ? "pill pill--solid" : "pill pill--ghost"}
+                  onClick={() => setResultTab("scene")}
+                >
+                  Szene
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={resultTab === "json"}
+                  className={resultTab === "json" ? "pill pill--solid" : "pill pill--ghost"}
+                  onClick={() => setResultTab("json")}
+                >
+                  JSON
+                </button>
+              </div>
+
+              <div className="scene-placeholder" role="tabpanel">
+                {state.phase === "running" ? (
+                  <Progress startedAt={state.startedAt} />
+                ) : state.phase === "error" ? (
+                  <p className="result-panel__text result-panel__text--error">Erzeugen fehlgeschlagen: {state.message}</p>
+                ) : exercise ? (
+                  resultTab === "scene" ? (
+                    <ExerciseScene exercise={exercise} />
+                  ) : (
+                    <pre className="exercise-json">{JSON.stringify(exercise, null, 2)}</pre>
+                  )
+                ) : null}
+              </div>
+
+              {exercise ? (
+                <label className="form-field">
+                  <span>Korrektur, z. B. „Tore an die Seiten, ein Spieler mehr bei Gelb“</span>
+                  <textarea
+                    rows={3}
+                    value={feedback}
+                    disabled={running}
+                    maxLength={3000}
+                    onChange={(event) => setFeedback(event.target.value)}
+                  />
+                </label>
+              ) : null}
+
+              <div className="admin__actions">
+                <button type="button" className="pill pill--ghost" disabled={running} onClick={reset}>
+                  Neue Übung
+                </button>
+                {state.phase === "error" ? (
+                  <button type="button" className="pill pill--solid" onClick={() => void generate()}>
+                    Erneut versuchen
+                  </button>
+                ) : null}
+                {exercise ? (
+                  <>
+                    <button
+                      type="button"
+                      className="pill pill--ghost"
+                      disabled={running || !feedback.trim()}
+                      onClick={() => void generate({ previous: { ...exercise, title: title.trim() || exercise.title }, feedback })}
+                    >
+                      Nachbessern
+                    </button>
+                    <button
+                      type="button"
+                      className="pill pill--solid"
+                      disabled={running || saveState === "saving" || saveState === "saved"}
+                      onClick={() => void save(exercise)}
+                    >
+                      {saveState === "saved"
+                        ? "Gespeichert"
+                        : saveState === "saving"
+                          ? "Speichert…"
+                          : saveState === "error"
+                            ? "Erneut speichern"
+                            : "Übernehmen"}
+                    </button>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </section>
         </div>
-      </section>
+      )}
     </div>
   );
 }
