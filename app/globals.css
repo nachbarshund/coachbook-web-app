@@ -1239,3 +1239,9 @@ a {
   font-size: 0.8125rem;
   opacity: 0.65;
 }
+
+.exercise-list__foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}

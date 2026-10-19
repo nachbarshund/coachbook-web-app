@@ -27,7 +27,7 @@ export default async function ExercisesPage() {
           <div className="admin__title">Übungen</div>
         </div>
         <a href="/admin/upload" className="pill pill--solid">
-          Video hochladen
+          Übung hinzufügen
         </a>
       </header>
 
@@ -37,7 +37,7 @@ export default async function ExercisesPage() {
         </section>
       ) : items.length === 0 ? (
         <section className="card empty" aria-live="polite">
-          Noch keine Übungen. Lade ein Video hoch, um die erste Übung anzulegen.
+          Noch keine Übungen. Lege die erste aus einem Video, einer Idee oder einer Skizze an.
         </section>
       ) : (
         <ul className="exercise-list">
@@ -64,6 +64,14 @@ export default async function ExercisesPage() {
           ))}
         </ul>
       )}
+
+      {items.length > 0 ? (
+        <div className="exercise-list__foot">
+          <a href="/admin/upload" className="pill pill--solid">
+            Übung hinzufügen
+          </a>
+        </div>
+      ) : null}
     </>
   );
 }
