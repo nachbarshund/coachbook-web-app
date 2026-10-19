@@ -1,15 +1,23 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { ExerciseScene } from "@/app/admin/upload/exercise-scene";
+import { SavedNotice } from "./saved-notice";
 import { listExercises, type ExerciseListItem } from "@/lib/exercise-store";
 
 export const metadata: Metadata = {
   title: "Übungen",
 };
 
-export default async function ExercisesPage() {
+const SAVED_MESSAGES: Record<string, string> = {
+  new: "Übung gespeichert.",
+  edit: "Änderungen gespeichert.",
+};
+
+export default async function ExercisesPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   // Rendered on request, never prerendered: the list comes from Blob.
   await connection();
+  const { saved } = await searchParams;
+  const savedMessage = saved ? SAVED_MESSAGES[saved] : undefined;
 
   let items: ExerciseListItem[] = [];
   let error: string | null = null;
@@ -30,6 +38,8 @@ export default async function ExercisesPage() {
           Übung hinzufügen
         </a>
       </header>
+
+      {savedMessage ? <SavedNotice message={savedMessage} /> : null}
 
       {error ? (
         <section className="card empty" aria-live="polite">

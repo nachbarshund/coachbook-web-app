@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
 import { extractFrames } from "@/lib/extract-frames";
 import { renderExerciseGif } from "@/lib/exercise-gif";
@@ -69,6 +70,7 @@ function AnalysisProgress({ state }: { state: Extract<AnalysisState, { phase: "f
 }
 
 export function UploadAnalysis() {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("video");
@@ -169,6 +171,7 @@ export function UploadAnalysis() {
         await fetch(`/api/exercises/${data.id}/gif`, { method: "PUT", headers: { "Content-Type": "image/gif" }, body: gif });
       } catch {}
       setSaveState({ phase: "saved" });
+      router.push("/admin?saved=new");
     } catch {
       setSaveState({ phase: "error" });
     }

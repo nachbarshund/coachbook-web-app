@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { renderExerciseGif } from "@/lib/exercise-gif";
 import { resizeImage, type ResizedImage } from "@/lib/resize-image";
 import type { Exercise } from "@/lib/exercise";
@@ -41,6 +42,7 @@ function Progress({ startedAt }: { startedAt: number }) {
 }
 
 export function IdeaInput() {
+  const router = useRouter();
   const [idea, setIdea] = useState("");
   const [image, setImage] = useState<ResizedImage | null>(null);
   const [imageError, setImageError] = useState("");
@@ -108,6 +110,7 @@ export function IdeaInput() {
         await fetch(`/api/exercises/${data.id}/gif`, { method: "PUT", headers: { "Content-Type": "image/gif" }, body: gif });
       } catch {}
       setSaveState("saved");
+      router.push("/admin?saved=new");
     } catch {
       setSaveState("error");
     }
