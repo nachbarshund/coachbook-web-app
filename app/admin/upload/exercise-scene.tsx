@@ -62,26 +62,31 @@ function Pitch() {
   );
 }
 
+// A true-to-scale goal on a full pitch is tiny in the sketch; keep it readable.
+const MIN_GOAL_WIDTH = 0.2;
+
 function Goal({ goal }: { goal: Goal }) {
   const cx = toX(goal);
   const cy = toY(goal);
-  const depth = 3.5;
+  const depth = 4.5;
   if (goal.orientation === "vertical") {
-    const w = goal.width * H;
+    const w = Math.max(goal.width, MIN_GOAL_WIDTH) * H;
     const left = goal.x < 0.5;
     const x0 = left ? cx - depth : cx;
     return (
       <g>
-        <rect x={x0} y={cy - w / 2} width={depth} height={w} fill="url(#net)" stroke="#ffffff" strokeWidth={0.6} />
+        <rect x={x0} y={cy - w / 2} width={depth} height={w} fill="#ffffff" />
+        <rect x={x0} y={cy - w / 2} width={depth} height={w} fill="url(#net)" stroke="#3b413d" strokeWidth={0.9} />
       </g>
     );
   }
-  const w = goal.width * W;
+  const w = Math.max(goal.width, MIN_GOAL_WIDTH) * W;
   const up = goal.y < 0.5;
   const y0 = up ? cy - depth : cy;
   return (
     <g>
-      <rect x={cx - w / 2} y={y0} width={w} height={depth} fill="url(#net)" stroke="#ffffff" strokeWidth={0.6} />
+      <rect x={cx - w / 2} y={y0} width={w} height={depth} fill="#ffffff" />
+      <rect x={cx - w / 2} y={y0} width={w} height={depth} fill="url(#net)" stroke="#3b413d" strokeWidth={0.9} />
     </g>
   );
 }
@@ -106,17 +111,41 @@ function ConeMarker({ cone }: { cone: Cone }) {
   return <ellipse cx={toX(cone)} cy={toY(cone)} rx={1.6} ry={0.75} fill="#d62b2b" stroke="#8a1212" strokeWidth={0.2} />;
 }
 
-function Player({ at, label }: { at: Point; label: string }) {
+type Look = { fill: string; text: string };
+const NEUTRAL: Look = { fill: "#111412", text: "#ffffff" };
+const NAMED_TEAMS: [RegExp, Look][] = [
+  [/gelb|yellow/i, { fill: "#f2c200", text: "#111412" }],
+  [/rot|red/i, { fill: "#d62b2b", text: "#ffffff" }],
+  [/blau|blue/i, { fill: "#2b6fd6", text: "#ffffff" }],
+  [/wei(ß|ss)|white/i, { fill: "#f4f4f0", text: "#111412" }],
+  [/orange/i, { fill: "#f08a1c", text: "#111412" }],
+  [/schwarz|black/i, { fill: "#111412", text: "#ffffff" }],
+  [/gr(ü|ue)n|green/i, { fill: "#1f7a3d", text: "#ffffff" }],
+];
+const FALLBACK_TEAMS: Look[] = [
+  { fill: "#2b6fd6", text: "#ffffff" },
+  { fill: "#f08a1c", text: "#111412" },
+  { fill: "#8a4fd6", text: "#ffffff" },
+];
+
+// Team names in the order they first appear; players without a team stay neutral.
+export function teamsOf(exercise: Exercise): string[] {
+  return exercise.people.flatMap((p) => (p.team ? [p.team] : [])).filter((t, i, all) => all.indexOf(t) === i);
+}
+
+// A colour name in the team ("Gelb", "Rot") is honoured; other names get a fixed fallback colour.
+export function teamLook(team: string | null, teams: string[]): Look {
+  if (!team) return NEUTRAL;
+  const named = NAMED_TEAMS.find(([pattern]) => pattern.test(team));
+  if (named) return named[1];
+  return FALLBACK_TEAMS[Math.max(0, teams.indexOf(team)) % FALLBACK_TEAMS.length];
+}
+
+function Player({ at, label, look }: { at: Point; label: string; look: Look }) {
   return (
     <g transform={`translate(${toX(at)} ${toY(at)})`}>
-      <circle r={3.4} fill="#111412" />
-      <text
-        y={1.2}
-        fontSize={3.6}
-        fontWeight={700}
-        textAnchor="middle"
-        fill="#ffffff"
-      >
+      <circle r={3.4} fill={look.fill} stroke={look === NEUTRAL ? "none" : "#ffffff"} strokeWidth={0.5} />
+      <text y={1.2} fontSize={3.6} fontWeight={700} textAnchor="middle" fill={look.text}>
         {label}
       </text>
     </g>
@@ -154,14 +183,15 @@ export function SceneSvg({ exercise, time, xmlns = false }: { exercise: Exercise
   const ballPath = frames.flatMap((f) => (f.ball ? [f.ball] : []));
   const pose = animated ? poseAt(frames, time) : null;
   // Margin only where goals stick out of the pitch; otherwise no empty frame around the sketch.
-  const pad = exercise.goals.length ? 4 : 0;
+  const pad = exercise.goals.length ? 5 : 0;
   const shownBall = pose ? pose.ball : null;
+  const teams = teamsOf(exercise);
 
   return (
     <svg xmlns={xmlns ? "http://www.w3.org/2000/svg" : undefined} viewBox={`${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`} role="img" aria-label={`Feldskizze: ${exercise.title}`}>
       <defs>
         <pattern id="net" width="1.4" height="1.4" patternUnits="userSpaceOnUse">
-          <path d="M0 0 L1.4 1.4 M1.4 0 L0 1.4" stroke="#ffffff" strokeWidth={0.18} opacity={0.8} />
+          <path d="M0 0 L1.4 1.4 M1.4 0 L0 1.4" stroke="#3b413d" strokeWidth={0.2} opacity={0.6} />
         </pattern>
         <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffffff" />
@@ -210,7 +240,7 @@ export function SceneSvg({ exercise, time, xmlns = false }: { exercise: Exercise
       ))}
   
       {exercise.people.map((p, index) => (
-        <Player key={p.id} at={pose?.people.get(p.id) ?? p} label={String(index + 1)} />
+        <Player key={p.id} at={pose?.people.get(p.id) ?? p} label={String(index + 1)} look={teamLook(p.team, teams)} />
       ))}
   
       {shownBall ? <Ball at={shownBall} /> : null}
@@ -252,6 +282,23 @@ export function ExerciseScene({
   return (
     <div className={compact ? "exercise-scene exercise-scene--compact" : "exercise-scene"}>
       <SceneSvg exercise={exercise} time={time} />
+
+      {teamsOf(exercise).length > 0 && !compact ? (
+        <div className="tag-row">
+          {teamsOf(exercise).map((team, _i, all) => {
+            const look = teamLook(team, all);
+            return (
+              <span key={team} className="chip" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <span
+                  aria-hidden="true"
+                  style={{ width: 10, height: 10, borderRadius: "50%", background: look.fill, border: "1px solid #c8cdc8" }}
+                />
+                {team} · {exercise.people.filter((p) => p.team === team).length}
+              </span>
+            );
+          })}
+        </div>
+      ) : null}
 
       {animated && !compact ? (
         <div className="exercise-player">

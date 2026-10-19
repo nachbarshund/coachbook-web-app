@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { UploadAnalysis } from "./upload-analysis";
+import { UploadModes } from "./upload-modes";
 
 export const metadata: Metadata = {
-  title: "Hochladen",
+  title: "Neue Übung",
 };
 
 export default function UploadPage() {
@@ -11,11 +11,11 @@ export default function UploadPage() {
       <header className="admin__head">
         <div>
           <div className="eyebrow">Analyse</div>
-          <div className="admin__title">Video hochladen</div>
+          <div className="admin__title">Neue Übung</div>
         </div>
       </header>
 
-      <UploadAnalysis />
+      <UploadModes />
     </>
   );
 }

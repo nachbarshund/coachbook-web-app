@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Exercise } from "@/lib/exercise";
 import { ExerciseScene } from "@/app/admin/upload/exercise-scene";
 import { renderExerciseGif } from "@/lib/exercise-gif";
@@ -12,6 +13,7 @@ const fromLines = (value: string) =>
     .filter(Boolean);
 
 export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercise }) {
+  const router = useRouter();
   const [title, setTitle] = useState(exercise.title);
   const [category, setCategory] = useState(exercise.category ?? "");
   const [ageGroup, setAgeGroup] = useState(exercise.ageGroup ?? "");
@@ -61,6 +63,7 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
         }),
       });
       setStatus(response.ok ? "saved" : "error");
+      if (response.ok) router.push("/admin?saved=edit");
     } catch {
       setStatus("error");
     }

@@ -1239,3 +1239,22 @@ a {
   font-size: 0.8125rem;
   opacity: 0.65;
 }
+
+.exercise-list__foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.saved-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 12px 18px;
+  border: 1px solid #bfe3cd;
+  border-radius: var(--radius-inner);
+  background: var(--pitch-soft);
+  color: var(--pitch);
+  font-weight: 700;
+}

@@ -1,15 +1,23 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { ExerciseScene } from "@/app/admin/upload/exercise-scene";
+import { SavedNotice } from "./saved-notice";
 import { listExercises, type ExerciseListItem } from "@/lib/exercise-store";
 
 export const metadata: Metadata = {
   title: "Übungen",
 };
 
-export default async function ExercisesPage() {
+const SAVED_MESSAGES: Record<string, string> = {
+  new: "Übung gespeichert.",
+  edit: "Änderungen gespeichert.",
+};
+
+export default async function ExercisesPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   // Rendered on request, never prerendered: the list comes from Blob.
   await connection();
+  const { saved } = await searchParams;
+  const savedMessage = saved ? SAVED_MESSAGES[saved] : undefined;
 
   let items: ExerciseListItem[] = [];
   let error: string | null = null;
@@ -27,9 +35,11 @@ export default async function ExercisesPage() {
           <div className="admin__title">Übungen</div>
         </div>
         <a href="/admin/upload" className="pill pill--solid">
-          Video hochladen
+          Übung hinzufügen
         </a>
       </header>
+
+      {savedMessage ? <SavedNotice message={savedMessage} /> : null}
 
       {error ? (
         <section className="card empty" aria-live="polite">
@@ -37,7 +47,7 @@ export default async function ExercisesPage() {
         </section>
       ) : items.length === 0 ? (
         <section className="card empty" aria-live="polite">
-          Noch keine Übungen. Lade ein Video hoch, um die erste Übung anzulegen.
+          Noch keine Übungen. Lege die erste aus einem Video, einer Idee oder einer Skizze an.
         </section>
       ) : (
         <ul className="exercise-list">
@@ -64,6 +74,14 @@ export default async function ExercisesPage() {
           ))}
         </ul>
       )}
+
+      {items.length > 0 ? (
+        <div className="exercise-list__foot">
+          <a href="/admin/upload" className="pill pill--solid">
+            Übung hinzufügen
+          </a>
+        </div>
+      ) : null}
     </>
   );
 }
