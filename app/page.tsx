@@ -29,7 +29,7 @@ export default function HomePage() {
         <span className="home__status">Coming soon</span>
 
         <h1 className="home__title">
-          Übungen aus dem Reel.
+          Übungen aus dem Video oder einer Idee.
           <br />
           <em>Direkt aufs Feld.</em>
         </h1>
