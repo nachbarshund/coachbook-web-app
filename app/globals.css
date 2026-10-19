@@ -100,6 +100,73 @@ a {
   color: var(--pitch);
 }
 
+/* Filter above the exercise list */
+
+.filter-bar {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+.filter-bar__group {
+  display: grid;
+  gap: 8px;
+}
+
+.filter-bar__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.filter-bar__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--card);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.chip-link:hover {
+  border-color: var(--pitch);
+}
+
+.chip-link--active {
+  background: var(--pitch);
+  border-color: var(--pitch);
+  color: #ffffff;
+}
+
+.chip-link__count {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.65;
+}
+
+.filter-bar__reset {
+  justify-self: start;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pitch);
+}
+
 .eyebrow {
   font-size: 12px;
   font-weight: 700;
