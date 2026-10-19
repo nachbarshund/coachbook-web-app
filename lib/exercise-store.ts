@@ -26,6 +26,7 @@ export type ExercisePatch = {
   phase: ExercisePhase | null;
   topic: ExerciseTopic | null;
   ageGroup: string | null;
+  durationMinutes: number | null;
   steps: string[];
   coachingPoints: string[];
 };

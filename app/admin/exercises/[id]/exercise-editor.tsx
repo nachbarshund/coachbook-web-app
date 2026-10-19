@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  DEFAULT_DURATION_MINUTES,
+  MAX_DURATION_MINUTES,
+  parseDuration,
   EXERCISE_PHASES,
   EXERCISE_PHASE_LABELS,
   EXERCISE_TOPICS,
@@ -29,6 +32,8 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
   const [phase, setPhase] = useState<ExercisePhase | null>(exercise.phase ?? null);
   const [topic, setTopic] = useState<ExerciseTopic | null>(exercise.topic ?? null);
   const [ageGroup, setAgeGroup] = useState(exercise.ageGroup ?? "");
+  // Exercises saved before the duration field have none; the editor offers the default.
+  const [duration, setDuration] = useState(String(exercise.durationMinutes ?? DEFAULT_DURATION_MINUTES));
   const [steps, setSteps] = useState(exercise.steps.join("\n"));
   const [coaching, setCoaching] = useState(exercise.coachingPoints.join("\n"));
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -72,6 +77,7 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
           phase,
           topic,
           ageGroup: ageGroup.trim() || null,
+          durationMinutes: parseDuration(duration),
           steps: fromLines(steps),
           coachingPoints: fromLines(coaching),
         }),
@@ -141,6 +147,19 @@ export function ExerciseEditor({ id, exercise }: { id: string; exercise: Exercis
             <input value={ageGroup} onChange={(event) => setAgeGroup(event.target.value)} />
           </label>
         </div>
+
+        <label className="form-field">
+          <span>Dauer (Minuten)</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={MAX_DURATION_MINUTES}
+            step={1}
+            value={duration}
+            onChange={(event) => setDuration(event.target.value)}
+          />
+        </label>
 
         <label className="form-field">
           <span>Ablauf (ein Schritt pro Zeile)</span>

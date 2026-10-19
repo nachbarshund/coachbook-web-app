@@ -44,6 +44,18 @@ export function parseTopic(value: unknown): ExerciseTopic | null {
   return (EXERCISE_TOPICS as readonly unknown[]).includes(value) ? (value as ExerciseTopic) : null;
 }
 
+// Duration of an exercise in minutes: the suggested value that the app copies into a session block.
+export const DEFAULT_DURATION_MINUTES = 15;
+export const MAX_DURATION_MINUTES = 180;
+
+/** Whole minutes between 1 and MAX_DURATION_MINUTES, or null for anything else. */
+export function parseDuration(value: unknown): number | null {
+  const n = typeof value === "string" && value.trim() ? Number(value) : value;
+  if (typeof n !== "number" || !Number.isFinite(n)) return null;
+  const minutes = Math.round(n);
+  return minutes >= 1 && minutes <= MAX_DURATION_MINUTES ? minutes : null;
+}
+
 export type Point = { x: number; y: number };
 
 export type Cone = Point & { id: string; kind: "cone" | "pole" };
@@ -174,7 +186,8 @@ export function parseExerciseJson(raw: string): Exercise {
     phase: parsePhase(data.phase),
     topic: parseTopic(data.topic),
     ageGroup: str(data.ageGroup),
-    durationMinutes: num(data.durationMinutes),
+    // The model suggests a duration; without a usable value the default applies.
+    durationMinutes: parseDuration(data.durationMinutes) ?? DEFAULT_DURATION_MINUTES,
     playerCount: num(data.playerCount),
     cones,
     goals,

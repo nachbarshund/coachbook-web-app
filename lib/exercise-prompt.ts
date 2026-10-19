@@ -10,7 +10,7 @@ export const EXERCISE_JSON_SHAPE = `Return only a JSON object, no prose, no code
   "phase": "warmup" | "main" | "match" | "cooldown" | null,
   "topic": "passing" | "dribbling" | "finishing" | "defending" | "coordination" | "smallsided" | null,
   "ageGroup": string | null (e.g. "F-Jugend"),
-  "durationMinutes": number | null,
+  "durationMinutes": number (whole minutes, realistic for a U8 session block, usually 5 to 20; use 15 when unsure),
   "playerCount": number | null,
   "cones": [{ "id": string, "kind": "cone" | "pole", "x": number, "y": number }],
   "goals": [{ "id": string, "x": number, "y": number, "width": number, "orientation": "horizontal" | "vertical" }],
