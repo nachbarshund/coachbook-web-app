@@ -75,7 +75,8 @@ function Goal({ goal }: { goal: Goal }) {
     const x0 = left ? cx - depth : cx;
     return (
       <g>
-        <rect x={x0} y={cy - w / 2} width={depth} height={w} fill="url(#net)" stroke="#ffffff" strokeWidth={0.6} />
+        <rect x={x0} y={cy - w / 2} width={depth} height={w} fill="#ffffff" />
+        <rect x={x0} y={cy - w / 2} width={depth} height={w} fill="url(#net)" stroke="#3b413d" strokeWidth={0.9} />
       </g>
     );
   }
@@ -84,7 +85,8 @@ function Goal({ goal }: { goal: Goal }) {
   const y0 = up ? cy - depth : cy;
   return (
     <g>
-      <rect x={cx - w / 2} y={y0} width={w} height={depth} fill="url(#net)" stroke="#ffffff" strokeWidth={0.6} />
+      <rect x={cx - w / 2} y={y0} width={w} height={depth} fill="#ffffff" />
+      <rect x={cx - w / 2} y={y0} width={w} height={depth} fill="url(#net)" stroke="#3b413d" strokeWidth={0.9} />
     </g>
   );
 }
@@ -189,7 +191,7 @@ export function SceneSvg({ exercise, time, xmlns = false }: { exercise: Exercise
     <svg xmlns={xmlns ? "http://www.w3.org/2000/svg" : undefined} viewBox={`${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`} role="img" aria-label={`Feldskizze: ${exercise.title}`}>
       <defs>
         <pattern id="net" width="1.4" height="1.4" patternUnits="userSpaceOnUse">
-          <path d="M0 0 L1.4 1.4 M1.4 0 L0 1.4" stroke="#ffffff" strokeWidth={0.18} opacity={0.8} />
+          <path d="M0 0 L1.4 1.4 M1.4 0 L0 1.4" stroke="#3b413d" strokeWidth={0.2} opacity={0.6} />
         </pattern>
         <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffffff" />
