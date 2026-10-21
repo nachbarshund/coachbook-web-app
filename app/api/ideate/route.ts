@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
-import { hasAdminSession } from "@/lib/auth";
+import { hasWriteAccess } from "@/lib/api-auth";
 import { parseExerciseJson, type Exercise } from "@/lib/exercise";
 import { EXERCISE_FIELD_RULES, EXERCISE_JSON_SHAPE } from "@/lib/exercise-prompt";
 
@@ -44,7 +44,7 @@ function readImage(value: unknown): ImageInput | null | "invalid" {
 }
 
 export async function POST(request: Request) {
-  if (!(await hasAdminSession())) {
+  if (!(await hasWriteAccess(request))) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
   if (!process.env.ANTHROPIC_API_KEY) {

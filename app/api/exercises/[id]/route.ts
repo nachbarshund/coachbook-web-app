@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { hasAdminSession } from "@/lib/auth";
-import { hasApiAccess } from "@/lib/api-auth";
+import { hasApiAccess, hasWriteAccess } from "@/lib/api-auth";
 import { parseDuration, parsePhase, parseTopic } from "@/lib/exercise";
 import { getExercise, updateExercise, type ExercisePatch } from "@/lib/exercise-store";
 
@@ -39,9 +38,9 @@ function textList(value: unknown): string[] | null {
   return value.flatMap((item) => (text(item, MAX_TEXT) ? [text(item, MAX_TEXT) as string] : [])).slice(0, MAX_LIST);
 }
 
-// Updates the editable fields of a saved exercise (admin only).
+// Updates the editable fields of a saved exercise (admin session or app token).
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await hasAdminSession())) {
+  if (!(await hasWriteAccess(request))) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 

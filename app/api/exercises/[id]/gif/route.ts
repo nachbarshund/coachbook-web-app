@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import { hasAdminSession } from "@/lib/auth";
+import { hasWriteAccess } from "@/lib/api-auth";
 import { getExercise, saveExerciseGif } from "@/lib/exercise-store";
 
 export const dynamic = "force-dynamic";
 
 const MAX_BYTES = 4_000_000;
 
-// Stores the sketch GIF that the browser rendered for an exercise (admin only).
+// Stores the sketch GIF that the browser rendered for an exercise (admin session or app token).
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await hasAdminSession())) {
+  if (!(await hasWriteAccess(request))) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
   const { id } = await params;

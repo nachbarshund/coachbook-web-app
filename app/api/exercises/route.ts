@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { hasAdminSession } from "@/lib/auth";
-import { hasApiAccess } from "@/lib/api-auth";
+import { hasApiAccess, hasWriteAccess } from "@/lib/api-auth";
 import { EXERCISE_SCHEMA_ID, parsePhase, parseTopic, type Exercise } from "@/lib/exercise";
 import { listExercises, saveExercise } from "@/lib/exercise-store";
 
@@ -24,9 +23,9 @@ export async function GET(request: Request) {
   }
 }
 
-// Saves an analysed exercise with its thumbnail (admin only).
+// Saves an analysed exercise with its thumbnail (admin session or app token).
 export async function POST(request: Request) {
-  if (!(await hasAdminSession())) {
+  if (!(await hasWriteAccess(request))) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 

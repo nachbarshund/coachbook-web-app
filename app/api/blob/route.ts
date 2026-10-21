@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
-import { hasAdminSession } from "@/lib/auth";
+import { hasWriteAccess } from "@/lib/api-auth";
 
 // Client uploads go straight to Vercel Blob; this route only issues
 // short-lived upload tokens to an authenticated admin.
@@ -10,12 +10,15 @@ const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/quicktime"];
 export async function POST(request: Request) {
   const body = (await request.json()) as HandleUploadBody;
 
+  // Checked once per request; the upload-completed callback from Vercel carries no credentials and never reaches the callback below.
+  const allowed = await hasWriteAccess(request);
+
   try {
     const jsonResponse = await handleUpload({
       body,
       request,
       onBeforeGenerateToken: async (pathname) => {
-        if (!(await hasAdminSession())) {
+        if (!allowed) {
           throw new Error("Not authorized");
         }
         if (!pathname.startsWith("videos/")) {
