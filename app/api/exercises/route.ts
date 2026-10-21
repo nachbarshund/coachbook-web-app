@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { hasApiAccess, hasWriteAccess } from "@/lib/api-auth";
 import { EXERCISE_SCHEMA_ID, parsePhase, parseTopic, type Exercise } from "@/lib/exercise";
-import { listExercises, saveExercise } from "@/lib/exercise-store";
+import { renderExerciseGifServer } from "@/lib/exercise-gif-server";
+import { listExercises, saveExercise, saveExerciseGif } from "@/lib/exercise-store";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 const MAX_THUMBNAIL_CHARS = 400_000;
 
@@ -30,7 +32,7 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json().catch(() => null)) as
-    | { exercise?: Exercise; thumbnail?: unknown }
+    | { exercise?: Exercise; thumbnail?: unknown; renderGif?: unknown }
     | null;
   const exercise = body?.exercise;
   if (!exercise || exercise.schema !== EXERCISE_SCHEMA_ID || typeof exercise.title !== "string") {
@@ -44,7 +46,17 @@ export async function POST(request: Request) {
 
   try {
     const saved = await saveExercise(clean, thumbnail);
-    return NextResponse.json({ id: saved.id });
+    // The app has no renderer of its own: with renderGif the server draws the sketch GIF.
+    let gif = false;
+    if (body?.renderGif === true) {
+      try {
+        await saveExerciseGif(saved.id, renderExerciseGifServer(clean).slice().buffer);
+        gif = true;
+      } catch (error) {
+        console.error("GIF render failed", error instanceof Error ? error.message : error);
+      }
+    }
+    return NextResponse.json({ id: saved.id, gif });
   } catch (error) {
     console.error("Save failed", error instanceof Error ? error.message : error);
     return NextResponse.json({ error: "Speichern fehlgeschlagen." }, { status: 502 });

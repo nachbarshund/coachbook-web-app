@@ -26,6 +26,8 @@ const patch = commitCount() ?? Number(fallbackPatch ?? 0);
 const appVersion = `${major}.${minor}.${patch}`;
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["@resvg/resvg-js"],
+  outputFileTracingIncludes: { "/api/exercises": ["./assets/fonts/**"] },
   env: {
     NEXT_PUBLIC_APP_VERSION: appVersion,
     // "production", "preview" or "development" (local). Drives the environment ribbon.

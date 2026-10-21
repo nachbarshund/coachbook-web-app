@@ -2,7 +2,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { GIFEncoder, applyPalette, quantize } from "gifenc";
-import { SceneSvg } from "@/app/admin/upload/exercise-scene";
+import { SceneSvg } from "@/lib/exercise-scene-svg";
 import type { Exercise } from "@/lib/exercise";
 
 const FPS = 12;
