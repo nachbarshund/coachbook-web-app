@@ -49,7 +49,8 @@ export async function POST(request: Request) {
     const client = new Anthropic();
     const message = await client.messages.create({
       model: MODEL,
-      max_tokens: 6000,
+      // 20 frames with several players each produce a long keyframe list; 6000 cut it off mid-JSON.
+      max_tokens: 12000,
       system: SYSTEM_PROMPT,
       messages: [
         {
@@ -75,8 +76,23 @@ export async function POST(request: Request) {
 
     try {
       return NextResponse.json({ exercise: parseExerciseJson(text) });
-    } catch {
-      return NextResponse.json({ error: "Antwort konnte nicht gelesen werden.", raw: text }, { status: 502 });
+    } catch (error) {
+      // Cause of an unreadable answer: cut off at the token limit, or not JSON at all.
+      console.error(
+        "Analysis parse failed",
+        error instanceof Error ? error.message : error,
+        `stop_reason=${message.stop_reason} frames=${frames.length} chars=${text.length} tail=${JSON.stringify(text.slice(-200))}`,
+      );
+      const cutOff = message.stop_reason === "max_tokens";
+      return NextResponse.json(
+        {
+          error: cutOff
+            ? "Die Antwort war zu lang und wurde abgeschnitten. Bitte ein kürzeres Video versuchen."
+            : "Antwort konnte nicht gelesen werden.",
+          raw: text,
+        },
+        { status: 502 },
+      );
     }
   } catch (error) {
     console.error("Analysis failed", error instanceof Error ? error.message : error);
