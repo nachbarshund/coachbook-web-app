@@ -2,10 +2,10 @@
 // without a browser. Used when the app saves an exercise, because the phone cannot draw the sketch.
 import path from "node:path";
 import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { Resvg } from "@resvg/resvg-js";
 import { GIFEncoder, applyPalette, quantize } from "gifenc";
 import { SceneSvg } from "@/lib/exercise-scene-svg";
+import { renderToSvgString } from "@/lib/svg-string";
 import type { Exercise } from "@/lib/exercise";
 
 const FPS = 12;
@@ -33,7 +33,7 @@ export function renderExerciseGifServer(exercise: Exercise): Uint8Array {
   const markups: string[] = [];
   for (let i = 0; i < count; i++) {
     const time = duration > 0 ? (duration * i) / count : 0;
-    markups.push(renderToStaticMarkup(createElement(SceneSvg, { exercise, time, xmlns: true })));
+    markups.push(renderToSvgString(createElement(SceneSvg, { exercise, time, xmlns: true })));
   }
 
   for (const width of [360, 280, 220, 160]) {
